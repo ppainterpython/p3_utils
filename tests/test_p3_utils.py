@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- +
-# test_p3logging_utils.py
+# test_p3_utils.py
 # ---------------------------------------------------------------------------- +
 #region imports
 # python standard libraries
@@ -95,7 +95,100 @@ def test_append_cause():
         assert em in result, f"Expected '{em}' in {result}"
         em = "ValueError: Func-3: >>> "
         assert em in result, f"Expected '{em}' in {result}"
-
 #endregion test_append_cause() function
 #endregion Tests for append_cause() function
+# ---------------------------------------------------------------------------- +
+#region Tests for is_file_locked() function
+# ---------------------------------------------------------------------------- +
+#region test_is_file_locked() function
+def test_is_file_locked(tmp_path):
+    # Create a temporary file
+    temp_file = tmp_path / "temp_file.txt"
+    temp_file.write_text("Temporary file content")
+
+    # Test when the file is not locked
+    result = p3u.is_file_locked(temp_file)
+    assert result is False, f"Expected False but got {result}"
+
+    # Test when the file is locked
+    with open(temp_file, 'a') as locked_file:
+        result = p3u.is_file_locked(temp_file)
+        assert result is True, f"Expected True but got {result}"
+
+    # Test with a non-existent file
+    non_existent_file = tmp_path / "non_existent_file.txt"
+    result = p3u.is_file_locked(non_existent_file)
+    assert result is False, f"Expected False but got {result}"
+
+    # Test with an invalid file path
+    with pytest.raises(Exception) as excinfo:
+        result = p3u.is_file_locked(None)
+    assert "An unexpected error occurred" in str(excinfo.value), \
+        f"Expected an exception but got {str(excinfo.value)}"
+#endregion test_is_file_locked() function
+# ---------------------------------------------------------------------------- +
+#endregion Tests for is_file_locked() function
+# ---------------------------------------------------------------------------- +
+#region Tests for err_msg() function
+# ---------------------------------------------------------------------------- +
+#region test_err_msg() function
+def test_err_msg():
+    # Test with a valid function and message
+    def test_func():
+        pass
+
+    # Test happy path, valid function and message
+    exptd = "test_p3_utils.test_func(): 'Test error message'"
+    result = p3u.err_msg(test_func, "Test error message")
+    assert result == exptd, \
+        f"Expected {result} to be {p3u.fpfx(test_func)} 'Test error message'"
+
+    # Test with func as a string name, included in return msg
+    exptd = "err_msg(funcy): 'Test exception message'"
+    result = p3u.err_msg("funcy", "Test exception message")
+    assert result == exptd, \
+        f"Expected {result} to be {p3u.fpfx(test_func)} 'Test exception message'"
+
+    # Test with an invalid function
+    exptd = "err_msg(Invalid func param:'None'): 'Test error message'"
+    result = p3u.err_msg(None, "Test error message")
+    assert result == exptd, \
+        f"Expected '{result}' to be '{exptd}'"
+#endregion test_err_msg() function
+# ---------------------------------------------------------------------------- +
+#region test_exc_msg() function
+def test_exc_msg():
+    # Test with a valid function and message
+    def test_func():
+        raise ValueError("Test exception")
+
+    # Test with a valid function and exception    
+    result = None
+    try:
+        test_func()
+    except ValueError as e:
+        result = p3u.exc_msg(test_func, e)
+
+    exptd = 'test_p3_utils.test_func(): ValueError(Test exception)'
+    assert result == exptd, \
+        f"Expected '{result}' to be '{exptd}'"
+
+    # Test with func as a string name, included in return msg
+    exptd = 'exc_msg(funcy):(Test exception)'
+    try:
+        test_func()
+    except ValueError as e:
+        result = p3u.exc_msg("funcy", e)
+    assert result == exptd, \
+        f"Expected {result} to be {p3u.fpfx(test_func)} 'Test exception message'"
+
+    # Test with func=None
+    try:
+        test_func()
+    except ValueError as e:
+        result = p3u.exc_msg(None, e)
+    exptd = f"exc_msg(Invalid func param:'None'):(Test exception)"
+    assert result == exptd, \
+        f"Expected '{result}' to be '{exptd}'"
+#endregion test_exc_msg() function
 # ---------------------------------------------------------------------------- +

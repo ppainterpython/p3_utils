@@ -1,9 +1,24 @@
 # ---------------------------------------------------------------------------- +
-""" p3_utils.py - Utility functions not dependent on any other p3 modules. """
+#region p3_utils.py
+# ---------------------------------------------------------------------------- +
+""" Helpful functions not dependent on any other p3 modules. 
+
+    is_filename_only() - Check if a path is a filename only, no parent folders.
+    append_cause() - Append the cause chain of an exception to the message.
+    fpfx() - Return a prefix for the function name and its module.
+    force_exception() - Force an exception to test exception handling.
+    t_of() - Return the type of an object as a string.
+    v_of() - Return the value of an object as a string.
+    check_testcase() - Raise test case exception if var = p3l.FORCE_EXCEPTION.
+    is_file_locked() - Check if a file is locked by another process.
+    err_msg() - Return a simple error message for an exception.
+    exc_msg() - Return a simple exception message for an exception.
+"""
+#endregion p3_utils.py
 # ---------------------------------------------------------------------------- +
 #region Imports
 # Standard Module Libraries
-import logging
+import logging, os
 from pathlib import Path
 from typing import Callable as function
 
@@ -15,7 +30,7 @@ FORCE_EXCEPTION = "force_exception"
 FORCE_EXCEPTION_MSG = "Forced exception for testing purposes."
 #endregion Globals and Constants
 # ---------------------------------------------------------------------------- +
-#region is_filename_only() function
+#region is_filename_only(path_str: str = None) -> bool
 def is_filename_only(path_str: str = None) -> bool:
     """ Check path_str as name of file only, no parent. """
     # Validate input
@@ -25,11 +40,11 @@ def is_filename_only(path_str: str = None) -> bool:
     path = Path(path_str)
     # Check if the path has no parent folders    
     return path.parent == Path('.')
-#endregion is_filename_only() function
+#endregion is_filename_only(path_str: str = None) -> bool
 # ---------------------------------------------------------------------------- +
-#region append_cause() function
+#region append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str
 def append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str:
-    """ Append the cause chain of an exception to the message. """
+    """ Trace and excpetion chain appending the causes """
     # If the exception has a cause, append the chain up to depth
     exc = e
     msg = ""
@@ -42,13 +57,11 @@ def append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str:
         exc = exc.__cause__ or exc.__context__
         depth -= 1 if depth > 0 else 0
     return msg 
-#endregion append_cause() function
+#endregion append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str
 # ---------------------------------------------------------------------------- +
-#region fpfx() function
-def fpfx(func) -> str:
-    """
-    Return a prefix for the function name and its module.
-    """
+#region fpfx(func : Callable) -> str) function
+def fpfx(func : function) -> str:
+    """ Function PreFiX: Return a str name of function func and its module. """
     try:
         if func is not None and isinstance(func, function):
             mod_name = func.__globals__['__name__']
@@ -64,28 +77,30 @@ def fpfx(func) -> str:
     except Exception as e:
         print(f"fpfx() Error: {str(e)}")
         raise
-#endregion fpfx() function
+#endregion fpfx(func : Callable) -> str) function
 # ---------------------------------------------------------------------------- +
-#region force_exception() function
+#region force_exception(func, e:Exception=None
 def force_exception(func, e:Exception=None) -> str:
-    """ Force an exception to test exception handling. """
+    """ Raise excception e from func as caller, default ZeroDivisionError. """
     func = force_exception if func is None else func
     dm = f"testcase: Default Exception Test for func:{func.__name__}()"
     e = ZeroDivisionError(dm) if e is None else e
     raise e
-#endregion fpfx() function
+#endregion fpfx(func, e:Exception=None
 # ---------------------------------------------------------------------------- +
-#region t_of() function
+#region t_of(obj) -> str
 def t_of(obj) -> str:
+    """Return type of obj as string."""
     return f"type({type(obj).__name__})"
 #endregion t_of() function
 # ---------------------------------------------------------------------------- +
-#region v_of() function
+#region v_of(obj) -> str
 def v_of(obj) -> str:
+    """Return value of obj as string."""
     return f"value = '{str(obj)}'"
-#endregion v_of() function
+#endregion v_of(obj) -> str
 # ---------------------------------------------------------------------------- +
-#region check_testcase() function
+#region check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str
 def check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str:
     """ Raise test case exception exc if var = p3l.FORCE_EXCEPTION. 
     
@@ -128,5 +143,81 @@ def check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str:
         if e == te:
             raise e
         return f"Error creating {exc}(), msg = '{str(e)}'"
-#endregion check_testcase() function
+#endregion check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str
+# ---------------------------------------------------------------------------- +
+#region is_file_locked(file_path : str =  None) -> bool
+def is_file_locked(file_path : str =  None) -> bool:
+    try:
+        # Attempt to open the file with write access
+        with open(file_path, 'a'):
+            pass
+        return False  # File is not locked
+    except PermissionError:
+        return True  # File is locked
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return True  # Assume file is locked in case of other errors
+#endregion is_file_locked(file_path : str =  None) -> bool
+# ---------------------------------------------------------------------------- +
+#region err_msg(func:function,msg : str = "no message") -> str
+def err_msg(func:function,msg : str = "no message") -> str:
+    """
+    Return a str with a common simple output message for Errors.
+    
+    Within a function, use to emit a message for an error condition. 
+    
+    Args:
+        func (function): The function where the exception occurred.
+        msg (str): The error message to be logged.
+        e (Exception): The exception object.
+        
+    Returns:
+        str: Returns the routine error message.    
+    """
+    try:
+        if func is not None and isinstance(func, function):
+            m = f"{fpfx(func)}'{msg}'"
+            return m
+        elif isinstance(func, str):
+            fn = func
+        else : 
+            fn = f"Invalid func param:'{str(func)}'"
+        m = f"err_msg({fn}): '{msg}'"
+        return m
+    except Exception as e:
+        et = type(e).__name__
+        print(f"p3_utils.exc_msg() Error:  {et}({str(e)})")
+        raise
+#endregion err_msg(func:function,msg : str = "no message") -> str
+# ---------------------------------------------------------------------------- +
+#region exc_msg(func:function,e:Exception) -> str
+def exc_msg(func:function,e:Exception) -> str:
+    """
+    Retrun a str with common simple output message for Exceptions.
+    
+    Within a function, use to emit a message in except: blocks. Various 
+    arguments select output by console print(), logger, or both.
+    
+    Args:
+        func (function): The function where the exception occurred.
+        e (Exception): The exception object.
+        
+    Returns:
+        str: Returns the routine exception message.    
+    """
+    try:
+        et = type(e).__name__
+        if func is not None and isinstance(func, function):
+            m = f"{fpfx(func)}{et}({str(e)})"
+            return m
+        elif isinstance(func, str):
+            fn = func
+        else : 
+            fn = f"Invalid func param:'{str(func)}'"
+        m = f"exc_msg({fn}):({str(e)})"
+        return m
+    except Exception as e:
+        print(f"p3_utils.exc_msg() Exception: {et}({str(e)})")
+        raise
+#endregion exc_msg(func:function,e:Exception) -> str
 # ---------------------------------------------------------------------------- +
