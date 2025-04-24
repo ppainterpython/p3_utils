@@ -15,6 +15,7 @@ import p3_utils as p3u
 # ---------------------------------------------------------------------------- +
 #region Globals
 THIS_APP_NAME = "Test_p3_utils"
+TEST_TEXT_FILE = "./tests/testdata/testtextfile.txt"
 
 #endregion Globals
 # ---------------------------------------------------------------------------- +
@@ -101,12 +102,10 @@ def test_append_cause():
 #region Tests for is_file_locked() function
 # ---------------------------------------------------------------------------- +
 #region test_is_file_locked() function
-def test_is_file_locked(tmp_path):
-    # Create a temporary file
-    temp_file = tmp_path / "temp_file.txt"
-    temp_file.write_text("Temporary file content")
-
+def test_is_file_locked():
+    temp_file = Path(TEST_TEXT_FILE)
     # Test when the file is not locked
+    assert temp_file.exists(), f"Temp file isn't there? '{str(temp_file)}'"
     result = p3u.is_file_locked(temp_file)
     assert result is False, f"Expected False but got {result}"
 
@@ -115,16 +114,19 @@ def test_is_file_locked(tmp_path):
         result = p3u.is_file_locked(temp_file)
         assert result is True, f"Expected True but got {result}"
 
-    # Test with a non-existent file
-    non_existent_file = tmp_path / "non_existent_file.txt"
+    # Test with a non-existent file, errors = 'forgive' the default
+    non_existent_file =  "tests/testdata/non_existent_file.txt"
     result = p3u.is_file_locked(non_existent_file)
     assert result is False, f"Expected False but got {result}"
 
     # Test with an invalid file path
     with pytest.raises(Exception) as excinfo:
         result = p3u.is_file_locked(None)
+
     assert "An unexpected error occurred" in str(excinfo.value), \
         f"Expected an exception but got {str(excinfo.value)}"
+    result = p3u.is_file_locked(1234)
+    result = p3u.is_file_locked(1234)
 #endregion test_is_file_locked() function
 # ---------------------------------------------------------------------------- +
 #endregion Tests for is_file_locked() function

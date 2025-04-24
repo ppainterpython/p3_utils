@@ -39,8 +39,8 @@
             "program": "${workspaceFolder}/tests",  // Path to your wrapper script
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",  // Current working directory
-            "purpose": ["debug-test"]  // Arguments to pass to the script
-            //"justMyCode": false  // Allows stepping into third-party or library code
+            "justMyCode": false,          // Allows stepping into third-party or library code
+            "purpose": ["debug-test"]     // Arguments to pass to the script
         }
     ]
 }

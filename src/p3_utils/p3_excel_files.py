@@ -137,7 +137,7 @@ if __name__ == "__main__":
         for wb in excel.Workbooks:
             _msg(me,f"  '{wb.Name}'")
 
-        file_path = Path("C:\\Users\\ppain\\OneDrive\\budget\\boa\data\\saved_BOAChecking2025.xlsx")
+        file_path = Path("C:\\Users\\ppain\\OneDrive\\budget\\boa\\data\\saved_BOAChecking2025.xlsx")
         if is_excel_file_open(file_path.name):
             _msg(me,f"'{file_path.name}' is open.")
         else:

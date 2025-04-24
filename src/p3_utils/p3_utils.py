@@ -13,12 +13,25 @@
     is_file_locked() - Check if a file is locked by another process.
     err_msg() - Return a simple error message for an exception.
     exc_msg() - Return a simple exception message for an exception.
+
+    Explanation:
+    ------------
+    These functions are intended to be helpful and low overhead. So, some
+    support the convention of a keyword argument 'errors' to select the action
+    to take on error. The default is 'forgive' which means to try to continue
+    the mission of the function. The 'strict' mode raises an error if the
+    function cannot continue. The 'forgive' mode is the default and is used
+    throughout the p3_utils module. The 'strict' mode is used in the test cases
+    to force an exception to be raised.
+
+    Our goal is 100% test coverage, as painful as that is to accomplish. 
+    Desiging code to be testalbe A principle applied to the p3_utils module. 
 """
 #endregion p3_utils.py
 # ---------------------------------------------------------------------------- +
 #region Imports
 # Standard Module Libraries
-import logging, os
+import logging, os, sys
 from pathlib import Path
 from typing import Callable as function
 
@@ -146,17 +159,70 @@ def check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str:
 #endregion check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str
 # ---------------------------------------------------------------------------- +
 #region is_file_locked(file_path : str =  None) -> bool
-def is_file_locked(file_path : str =  None) -> bool:
+def is_file_locked(file_path : str|Path =  None, errors : str = 'forgive') -> bool:
+    """ Is a file locked by another process? """
     try:
-        # Attempt to open the file with write access
-        with open(file_path, 'a'):
-            pass
-        return False  # File is not locked
-    except PermissionError:
-        return True  # File is locked
+        me = is_file_locked
+        print(f"cwd = '{os.getcwd()}'")
+        test_path : Path = None
+        # Validate file_path is non-zero length str or Path object
+        if (file_path is None or 
+            not isinstance(file_path, Path) or
+            (isinstance(file_path, str) and 
+            len(file_path.name) <= 0)):
+            # file_path is None or not a Path obj, or a non-zero length str
+            return False # add errors support here
+        elif isinstance(file_path, str) and len(file_path.strip()) > 0:
+            # convert str file_path to Path obj
+            test_path = Path(file_path)
+        else:
+            # file_path is a Path object
+            test_path = file_path
+        # Validate the test_path is reachable
+        if not test_path.is_absolute():
+            # Resolve the path before checking if it exists
+            test_path = test_path.resolve()
+        # Check if the file exists
+        if not test_path.exists():
+            # Non-existing file cannot be locked, but error?
+            return False            
+            # file_path is not a str or Path object
+            # TODO: support error param for selectiong what to do about errors
+            # 'forgive' mode, default, try to forgive and continue the mission 
+            # if errors == 'forgive': return False
+            # if errors == 'strict':
+            #     # 'strict' mode, raise error file_path not a str or Path object
+            #     m = err_msg(me, f"Invalid file_path: type=" 
+            #                     f"'{type(file_path).__name__}', value='{file_path}'")
+            #     raise TypeError(m)
+        # To check a lock, attempt to rename the file
+        temp_path = test_path / ".temp"
+        os.rename(test_path, temp_path)
+        os.rename(temp_path, test_path)  # Revert to original name
+        return False  # File is not locked - Happy Path
+    except PermissionError as e:
+        em = exc_msg(is_file_locked, e)
+        return True   # File is locked - Happy Path
+    except FileNotFoundError as e:
+        em = exc_msg(is_file_locked, e)
+        return True   # File is locked - Happy Path
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return True  # Assume file is locked in case of other errors
+        em = exc_msg(is_file_locked, e)
+        print(em)
+        return True
+
+
+    # this first attempt returned false for spreadsheets open in excel, FAIL
+    # try:
+    #     # Attempt to open the file with write access
+    #     with open(file_path, 'a'):
+    #         pass
+    #     return False  # File is not locked
+    # except PermissionError:
+    #     return True  # File is locked
+    # except Exception as e:
+    #     print(f"An unexpected error occurred: {e}")
+    #     return True  # Assume file is locked in case of other errors
 #endregion is_file_locked(file_path : str =  None) -> bool
 # ---------------------------------------------------------------------------- +
 #region err_msg(func:function,msg : str = "no message") -> str
