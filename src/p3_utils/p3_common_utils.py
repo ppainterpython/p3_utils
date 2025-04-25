@@ -11,8 +11,6 @@
     v_of() - Return the value of an object as a string.
     check_testcase() - Raise test case exception if var = p3l.FORCE_EXCEPTION.
     is_file_locked() - Check if a file is locked by another process.
-    err_msg() - Return a simple error message for an exception.
-    exc_msg() - Return a simple exception message for an exception.
 
     Explanation:
     ------------
@@ -36,6 +34,8 @@ from pathlib import Path
 from typing import Callable as function
 
 # Local Modules
+from p3_utils import out_msg, exc_msg, po, set_print_output, get_print_output
+
 #endregion Imports
 # ---------------------------------------------------------------------------- +
 #region Globals and Constants
@@ -71,26 +71,6 @@ def append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str:
         depth -= 1 if depth > 0 else 0
     return msg 
 #endregion append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str
-# ---------------------------------------------------------------------------- +
-#region fpfx(func : Callable) -> str) function
-def fpfx(func : function) -> str:
-    """ Function PreFiX: Return a str name of function func and its module. """
-    try:
-        if func is not None and isinstance(func, function):
-            mod_name = func.__globals__['__name__']
-            func_name = func.__name__
-            # Helpling out the test cases only.
-            if func_name == "force_exception":
-                force_exception(func)
-            return f"{mod_name}.{func_name}(): "
-        else: 
-            m = f"InvalidFunction({str(func)}): "
-            print(f"fpfx(): Passed {str(m)}")
-            return m
-    except Exception as e:
-        print(f"fpfx() Error: {str(e)}")
-        raise
-#endregion fpfx(func : Callable) -> str) function
 # ---------------------------------------------------------------------------- +
 #region force_exception(func, e:Exception=None
 def force_exception(func, e:Exception=None) -> str:
@@ -163,7 +143,6 @@ def is_file_locked(file_path : str|Path =  None, errors : str = 'forgive') -> bo
     """ Is a file locked by another process? """
     try:
         me = is_file_locked
-        print(f"cwd = '{os.getcwd()}'")
         test_path : Path = None
         # Validate file_path is non-zero length str or Path object
         if (file_path is None or 
@@ -171,6 +150,11 @@ def is_file_locked(file_path : str|Path =  None, errors : str = 'forgive') -> bo
             (isinstance(file_path, str) and 
             len(file_path.name) <= 0)):
             # file_path is None or not a Path obj, or a non-zero length str
+            if errors == 'strict':
+                # 'strict' mode, raise error file_path not a str or Path object
+                m = out_msg(me, f"Invalid file_path: type=" 
+                                f"'{type(file_path).__name__}', value='{file_path}'")
+                raise TypeError(m)
             return False # add errors support here
         elif isinstance(file_path, str) and len(file_path.strip()) > 0:
             # convert str file_path to Path obj
@@ -192,98 +176,49 @@ def is_file_locked(file_path : str|Path =  None, errors : str = 'forgive') -> bo
             # if errors == 'forgive': return False
             # if errors == 'strict':
             #     # 'strict' mode, raise error file_path not a str or Path object
-            #     m = err_msg(me, f"Invalid file_path: type=" 
+            #     m = out_msg(me, f"Invalid file_path: type=" 
             #                     f"'{type(file_path).__name__}', value='{file_path}'")
             #     raise TypeError(m)
         # To check a lock, attempt to rename the file
-        temp_path = test_path / ".temp"
-        os.rename(test_path, temp_path)
-        os.rename(temp_path, test_path)  # Revert to original name
+        temp_path = test_path.with_suffix(test_path.suffix + ".temp")
+        test_path.rename(temp_path)  # Rename to temp
+        temp_pathtemp_path = test_path.with_suffix(test_path.suffix + ".temp")
+        temp_pathtemp_path.rename(test_path)  # Rename to temp
+
+        # os.rename(test_path, temp_path)
+        # os.rename(temp_path, test_path)  # Revert to original name
         return False  # File is not locked - Happy Path
+    except TypeError as e:
+        po(str(e))
+        if errors == 'strict':
+            raise
+        return False
     except PermissionError as e:
-        em = exc_msg(is_file_locked, e)
+        po(str(e))
+        if errors == 'strict':
+            raise
         return True   # File is locked - Happy Path
     except FileNotFoundError as e:
-        em = exc_msg(is_file_locked, e)
-        return True   # File is locked - Happy Path
+        po(str(e))
+        if errors == 'strict':
+            raise
+        return False
     except Exception as e:
-        em = exc_msg(is_file_locked, e)
-        print(em)
-        return True
-
-
-    # this first attempt returned false for spreadsheets open in excel, FAIL
-    # try:
-    #     # Attempt to open the file with write access
-    #     with open(file_path, 'a'):
-    #         pass
-    #     return False  # File is not locked
-    # except PermissionError:
-    #     return True  # File is locked
-    # except Exception as e:
-    #     print(f"An unexpected error occurred: {e}")
-    #     return True  # Assume file is locked in case of other errors
+        po(str(e))
+        if errors == 'strict':
+            raise
+        return False
 #endregion is_file_locked(file_path : str =  None) -> bool
 # ---------------------------------------------------------------------------- +
-#region err_msg(func:function,msg : str = "no message") -> str
-def err_msg(func:function,msg : str = "no message") -> str:
-    """
-    Return a str with a common simple output message for Errors.
-    
-    Within a function, use to emit a message for an error condition. 
-    
-    Args:
-        func (function): The function where the exception occurred.
-        msg (str): The error message to be logged.
-        e (Exception): The exception object.
-        
-    Returns:
-        str: Returns the routine error message.    
-    """
-    try:
-        if func is not None and isinstance(func, function):
-            m = f"{fpfx(func)}'{msg}'"
-            return m
-        elif isinstance(func, str):
-            fn = func
-        else : 
-            fn = f"Invalid func param:'{str(func)}'"
-        m = f"err_msg({fn}): '{msg}'"
-        return m
-    except Exception as e:
-        et = type(e).__name__
-        print(f"p3_utils.exc_msg() Error:  {et}({str(e)})")
-        raise
-#endregion err_msg(func:function,msg : str = "no message") -> str
+#endregion Public functions
 # ---------------------------------------------------------------------------- +
-#region exc_msg(func:function,e:Exception) -> str
-def exc_msg(func:function,e:Exception) -> str:
-    """
-    Retrun a str with common simple output message for Exceptions.
-    
-    Within a function, use to emit a message in except: blocks. Various 
-    arguments select output by console print(), logger, or both.
-    
-    Args:
-        func (function): The function where the exception occurred.
-        e (Exception): The exception object.
-        
-    Returns:
-        str: Returns the routine exception message.    
-    """
+#region Local __main__ stand-alone
+if __name__ == "__main__":
     try:
-        et = type(e).__name__
-        if func is not None and isinstance(func, function):
-            m = f"{fpfx(func)}{et}({str(e)})"
-            return m
-        elif isinstance(func, str):
-            fn = func
-        else : 
-            fn = f"Invalid func param:'{str(func)}'"
-        m = f"exc_msg({fn}):({str(e)})"
-        return m
+        me = __name__
+        set_print_output(True)
     except Exception as e:
-        print(f"p3_utils.exc_msg() Exception: {et}({str(e)})")
-        raise
-#endregion exc_msg(func:function,e:Exception) -> str
-# ---------------------------------------------------------------------------- +
+        print(exc_msg("__main__",e))
+        _ = "pause"
+    exit(0)
+#endregion Local __main__ stand-alone
