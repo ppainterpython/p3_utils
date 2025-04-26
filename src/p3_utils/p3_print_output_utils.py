@@ -58,19 +58,16 @@ def out_msg(func:callable,msg : str = "no message") -> str:
         str: Returns the prefixed message.    
     """
     try:
-        if func is not None and isinstance(func, function):
-            m = f"{fpfx(func)}'{msg}'"
-            return m
-        elif isinstance(func, str):
-            fn = func
+        if func is not None or isinstance(func, function) or isinstance(func, str):
+            m = f"{fpfx(func)} '{msg}'"
         else : 
             fn = f"Invalid func param:'{str(func)}'"
-        m = f"out_msg({fn}): '{msg}'"
+            m = f"out_msg({fn}): '{msg}'"
         po(m)
         return m
     except Exception as e:
         et = type(e).__name__
-        po(f"p3_utils.exc_msg() Error:  {et}({str(e)})")
+        po(f"p3_utils.out_msg() Error:  {et}({str(e)})")
         raise
 #endregion out_msg(func:function,msg : str = "no message") -> str
 # ---------------------------------------------------------------------------- +
@@ -90,14 +87,11 @@ def exc_msg(func : callable, e : Exception) -> str:
     """
     try:
         et = type(e).__name__
-        if func is not None and isinstance(func, function):
+        if func is not None or isinstance(func, function) or isinstance(func, str):
             m = f"{fpfx(func)}{et}({str(e)})"
-            return m
-        elif isinstance(func, str):
-            fn = func
         else : 
             fn = f"Invalid func param:'{str(func)}'"
-        m = f"exc_msg({fn}):({str(e)})"
+            m = f"exc_msg({fn}): '{str(e)}'"
         po(m)
         return m
     except Exception as e:
@@ -115,14 +109,13 @@ def fpfx(func : callable) -> str:
             # Helpling out the test cases only.
             if func_name == "force_exception":
                 1 / 0
-            return f"{mod_name}.{func_name}(): "
+            return f"{mod_name}.{func_name}():"
+        elif isinstance(func, str):
+            return f"{func}():"
         else: 
-            m = f"InvalidFunction({str(func)}): "
-            print(f"fpfx(): Passed {str(m)}")
-            return m
-        return "foo"
+            return f"UnknownFunction({str(func)}):"
     except Exception as e:
-        print(f"fpfx() Error: {str(e)}")
+        po(f"fpfx() Error: {str(e)}")
         raise
 #endregion fpfx(func : Callable) -> str) function
 # ---------------------------------------------------------------------------- +
