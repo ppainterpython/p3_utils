@@ -1,5 +1,10 @@
 # ---------------------------------------------------------------------------- +
-# at_utils.py
+#region at_utils.py
+"""
+Helper functions for ISO 8601 timestamps and other common validation tests.
+"""
+#endregion at_utils.py
+# ---------------------------------------------------------------------------- +
 #region Imports
 # ---------------------------------------------------------------------------- +
 import datetime,threading, os, inspect, sys, debugpy
