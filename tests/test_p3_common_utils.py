@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- +
-# test_p3_utils.py
+# test_p3_common_utils.py
 # ---------------------------------------------------------------------------- +
 #region imports
 # python standard libraries
@@ -14,7 +14,7 @@ import p3_utils as p3u
 #endregion imports
 # ---------------------------------------------------------------------------- +
 #region Globals
-THIS_APP_NAME = "Test_p3_utils"
+THIS_APP_NAME = "Test_p3_common_utils"
 TEST_TEXT_FILE = "./tests/testdata/testtextfile.txt"
 #endregion Globals
 # ---------------------------------------------------------------------------- +
@@ -53,20 +53,19 @@ def test_fpfx():
     def test_func():
         pass
 
+    exptd = 'test_p3_common_utils.test_func():'
     result = p3u.fpfx(test_func)
-    exptd = 'test_p3_utils.test_func(): '
     assert result == exptd, f"Expected '{exptd}' but got '{result}'"
 
     # Test with an invalid function
+    exptd = 'UnknownFunction(None):'
     result = p3u.fpfx(None)
-    assert result == f"InvalidFunction(None): ", \
-        f"Expected {result} to be InvalidFunction(None): "
+    assert result == exptd, f"Expected '{exptd}' but got '{result}'"
     # Test with forced exception
+    exptd = "division by zero"
     with pytest.raises(ZeroDivisionError) as excinfo:
         result = p3u.fpfx(p3u.force_exception)
-    exp_msg = "division by zero"
-    assert exp_msg in str(excinfo.value), \
-        f"Expected Exception msg to be '{exp_msg}' but got '{str(excinfo.value)}'"
+    assert exptd in str(excinfo.value), f"Expected '{exptd}' but got '{result}'"
 #endregion test_fpfx() function
 # ---------------------------------------------------------------------------- +
 #endregion Tests for fpfx() function
@@ -163,13 +162,13 @@ def test_out_msg():
         pass
 
     # Test happy path, valid function and message
-    exptd = "test_p3_utils.test_func(): 'Test error message'"
+    exptd = "test_p3_common_utils.test_func(): 'Test error message'"
     result = p3u.out_msg(test_func, "Test error message")
     assert result == exptd, \
         f"Expected {result} to be {p3u.fpfx(test_func)} 'Test error message'"
 
     # Test with func as a string name, included in return msg
-    exptd = "out_msg(funcy): 'Test exception message'"
+    exptd = "funcy(): 'Test exception message'"
     result = p3u.out_msg("funcy", "Test exception message")
     assert result == exptd, \
         f"Expected {result} to be {p3u.fpfx(test_func)} 'Test exception message'"
@@ -188,32 +187,28 @@ def test_exc_msg():
         raise ValueError("Test exception")
 
     # Test with a valid function and exception    
+    exptd = 'test_p3_common_utils.test_func():ValueError(Test exception)'
     result = None
     try:
         test_func()
     except ValueError as e:
         result = p3u.exc_msg(test_func, e)
-
-    exptd = 'test_p3_utils.test_func(): ValueError(Test exception)'
-    assert result == exptd, \
-        f"Expected '{result}' to be '{exptd}'"
+    assert result == exptd, f"Expected '{exptd}' bug got '{result}'"
 
     # Test with func as a string name, included in return msg
-    exptd = 'exc_msg(funcy):(Test exception)'
+    exptd = 'funcy():ValueError(Test exception)'
     try:
         test_func()
     except ValueError as e:
         result = p3u.exc_msg("funcy", e)
-    assert result == exptd, \
-        f"Expected {result} to be {p3u.fpfx(test_func)} 'Test exception message'"
+    assert result == exptd, f"Expected '{exptd}' bug got '{result}'"
 
     # Test with func=None
+    exptd = f"exc_msg(Invalid func param:'None'): 'Test exception'"
     try:
         test_func()
     except ValueError as e:
         result = p3u.exc_msg(None, e)
-    exptd = f"exc_msg(Invalid func param:'None'):(Test exception)"
-    assert result == exptd, \
-        f"Expected '{result}' to be '{exptd}'"
+    assert result == exptd, f"Expected '{exptd}' bug got '{result}'"
 #endregion test_exc_msg() function
 # ---------------------------------------------------------------------------- +
