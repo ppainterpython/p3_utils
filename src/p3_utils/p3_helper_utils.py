@@ -7,9 +7,17 @@ Helper functions for ISO 8601 timestamps and other common validation tests.
 # ---------------------------------------------------------------------------- +
 #region Imports
 # ---------------------------------------------------------------------------- +
+# python standard library modules and packages
 import datetime,threading, os, inspect, sys, debugpy
+import pathlib as Path, urllib.parse
 from logging import Logger
-from typing import List, Optional
+from typing import List
+
+# third-party modules and packages
+import p3_utils as p3u, pyjson5, p3logging as p3l
+from openpyxl import Workbook, load_workbook
+
+# local modules and packages
 #endregion Imports
 # ---------------------------------------------------------------------------- +
 #region ISO 8601 Timestamp functional interface
@@ -416,6 +424,29 @@ def is_folder_in_path(foldername:str="",pathstr:str="") -> bool:
 # ---------------------------------------------------------------------------- +
 #region basic utility functions
 # ---------------------------------------------------------------------------- +
+#region uri parsing functions
+def file_uri_to_path(file_uri: str) -> str:
+    """Convert a file URI to a file path."""
+    try:
+        if not isinstance(file_uri, str) and level(file_uri) == 0:
+            raise TypeError(f"file_uri must be type:str, not type: {type(file_uri).__name__}")
+        # Parse the file URI and convert it to a file path
+        parsed_uri = urllib.parse.urlparse(file_uri)
+        return urllib.parse.unquote(Path.PurePath(parsed_uri.path))
+    except Exception as e:
+        m = p3u.exc_msg(file_uri_to_path, e)
+        raise
+def path_to_file_uri(file_path: Path) -> str:
+    """Convert a file path to a file URI."""
+    try:
+        if not isinstance(file_path, Path.Path):
+            raise TypeError(f"file_path must be type:Path, not type: {type(file_path).__name__}")
+        # Convert the file path to a file URI
+        return "file://" + urllib.parse.quote(str(file_path.as_posix()))
+    except Exception as e:
+        m = p3u.exc_msg(path_to_file_uri, e)
+        raise
+# ---------------------------------------------------------------------------- +
 #region ptid()
 def get_pid() -> int:
     """Return the current process ID."""
@@ -426,7 +457,7 @@ def get_tid() -> int:
 def ptid()->str:
     """Return the current [processID:threadID]."""
     return f"[{get_pid()}:{get_tid()}]"
-#endregion
+#endregion ptid()
 # ---------------------------------------------------------------------------- +
 #region at_env_info)
 # label the tuple elements for clarity
