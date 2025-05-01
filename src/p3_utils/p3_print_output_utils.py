@@ -11,6 +11,8 @@
 #region Imports
 # Standard Package and Module Libraries
 from typing import Callable as function
+from pathlib import Path
+import traceback
 
 # Third-party Package and Module Libraries
 
@@ -91,6 +93,32 @@ def exc_msg(func : callable, e : Exception) -> str:
         else : 
             fn = f"Invalid func param:'{str(func)}'"
             m = f"exc_msg({fn}): '{str(e)}'"
+        po(m)
+        return m
+    except Exception as e:
+        po(f"p3_utils.exc_msg() Exception: {et}({str(e)})")
+        raise
+#endregion exc_msg(func:function,e:Exception) -> str
+# ---------------------------------------------------------------------------- +
+#region exc_err_msg(func:function,e:Exception) -> str
+def exc_err_msg(e : Exception) -> str:
+    """
+    Retrun common simple output message for Exceptions, no caller prefix.
+    
+    Within a function, use to log a message in except: blocks. 
+    
+    Args:
+        e (Exception): The exception object.
+        
+    Returns:
+        str: Returns the prefixed exception message.    
+    """
+    try:
+        tb = traceback.extract_tb(e.__traceback__)
+        filepath, line_number, function_name, text = tb[-1]
+        filename = Path(filepath).name
+        et = type(e).__name__
+        m = f"{et}({str(e)}) at {function_name}() in {filename}:{line_number}"
         po(m)
         return m
     except Exception as e:

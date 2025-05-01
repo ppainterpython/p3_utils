@@ -18,6 +18,7 @@ __author__ = "Paul Painter"
 from .p3_print_output_utils import (
     out_msg, 
     exc_msg, 
+    exc_err_msg,
     po, 
     set_print_output, 
     get_print_output, 
@@ -144,6 +145,7 @@ __all__ = [
     "fpfx",
     "out_msg",
     "exc_msg",
+    "exc_err_msg",
     "force_exception",
     "is_file_locked",
     "get_print_output",
