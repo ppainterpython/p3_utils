@@ -8,7 +8,7 @@ Helper functions for ISO 8601 timestamps and other common validation tests.
 #region Imports
 # ---------------------------------------------------------------------------- +
 # python standard library modules and packages
-import datetime,threading, os, inspect, sys, debugpy
+import datetime,threading, os, inspect, sys, debugpy, time
 import pathlib as Path, urllib.parse
 from logging import Logger
 from typing import List
@@ -434,7 +434,7 @@ def file_uri_to_path(file_uri: str) -> str:
         parsed_uri = urllib.parse.urlparse(file_uri)
         return urllib.parse.unquote(Path.PurePath(parsed_uri.path))
     except Exception as e:
-        m = p3u.exc_msg(file_uri_to_path, e)
+        m = p3u.exc_err_msg(e)
         raise
 def path_to_file_uri(file_path: Path) -> str:
     """Convert a file path to a file URI."""
@@ -444,8 +444,9 @@ def path_to_file_uri(file_path: Path) -> str:
         # Convert the file path to a file URI
         return "file://" + urllib.parse.quote(str(file_path.as_posix()))
     except Exception as e:
-        m = p3u.exc_msg(path_to_file_uri, e)
+        m = p3u.exc_err_msg(e)
         raise
+#endregion uri parsing functions
 # ---------------------------------------------------------------------------- +
 #region ptid()
 def get_pid() -> int:
@@ -588,6 +589,18 @@ def is_running_in_pytest(test:int=1) -> bool:
                 return True
     return False
 #endregion is_running_in_pytest()
+# ---------------------------------------------------------------------------- +
+#region timer functions
+def start_timer() -> float:
+    """Start a timer and return the raw time as a float."""
+    return time.time()
+def stop_timer(start_time: float) -> str:
+    """Stop the timer and return the elapsed time in seconds as a str msg."""
+    if not isinstance(start_time, (int, float)):
+        t = type(start_time).__name__
+        raise TypeError(f"start_time must be type:int|float, not type: {t}")
+    return f"{time.time() - start_time:6f} seconds"
+#region is_file_locked()
 # ---------------------------------------------------------------------------- +
 #endregion basic utility functions
 # ---------------------------------------------------------------------------- +

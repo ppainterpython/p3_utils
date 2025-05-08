@@ -89,7 +89,9 @@ from .p3_helper_utils import (
     ATU_APP_FULL_PATH,
     ATU_APP_CWD,
     at_env_info,
-    is_running_in_pytest    
+    is_running_in_pytest,
+    start_timer,
+    stop_timer
 ) 
 
 # ---------------------------------------------------------------------------- +
@@ -164,4 +166,6 @@ __all__ = [
     "ATU_APP_CWD",
     "at_env_info",
     "is_running_in_pytest",
+    "start_timer",
+    "stop_timer",
 ]
