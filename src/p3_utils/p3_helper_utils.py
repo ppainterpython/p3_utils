@@ -389,11 +389,24 @@ def is_not_str_or_none(name:str="not-provided", value: str = None) -> bool:
     or raise TypeError or ValueError."""
     return not is_str_or_none(name, value)
 
-def str_empty(value: str) -> bool:
-    """Check if a string is not empty."""
+def str_empty(value: str, raise_error:bool=False) -> bool:
+    """Check if a string is not a str or is empty.
+    
+    Treat None as empty when raise_error is False.
+    If raise_error is True, raise TypeError if value is not a str, and
+    a ValueError if value is None or an empty string.
+    """
     # Check if the value is a string and not empty. Treat None as empty.
-    if value is None or not isinstance(value, str) or len(value) == 0:
+    if not raise_error and (value is None or 
+                            not isinstance(value, str) or 
+                            len(value) == 0):
         return True
+    if raise_error:
+        if value is not None and not isinstance(value, str):
+            raise TypeError(f"Value must be type:str, "
+                            f"not type: {type(value).__name__}")
+        elif value is None or len(value) == 0:
+            raise ValueError(f"Value cannot be None or empty string")
     return False
 
 def str_notempty(value: str) -> bool:
