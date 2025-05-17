@@ -11,7 +11,7 @@ Helper functions for ISO 8601 timestamps and other common validation tests.
 import datetime,threading, os, inspect, sys, debugpy, time
 import pathlib as Path, urllib.parse
 from logging import Logger
-from typing import List
+from typing import List, Any, Type
 
 # third-party modules and packages
 import p3_utils as p3u, pyjson5, p3logging as p3l
@@ -329,8 +329,7 @@ def is_not_object_or_none(value: object = None) -> bool:
     """Negative test for None or type:object."""
     return not is_object_or_none(value)
 
-def is_obj_of_type(name:str, obj_value: object, 
-                   obj_type:type, 
+def is_obj_of_type(name:str, obj_value: Any, exp_obj_type : Type[Any], 
                    raise_TypeError:bool=False) -> bool:
     """Positive test for object of type: type, return True, or raise TypeError."""
     # name parameter is the name of the parameter being validated.
@@ -343,16 +342,16 @@ def is_obj_of_type(name:str, obj_value: object,
                             f"not type:'{type(name).__name__}'")
         else: return False
     # Ensure obj_type is a type object
-    if obj_type is None or not isinstance(obj_type, type):
+    if exp_obj_type is None or not isinstance(exp_obj_type, type):
         if raise_TypeError:
             raise TypeError(f"obj_type parameter must be a type, " + \
                             f"not type:'{type(name).__name__}'")
         else: return False
     # Check if the class name provided in 'type' matches the value's type
-    if not isinstance(obj_value, obj_type):
+    if not isinstance(obj_value, exp_obj_type):
         if raise_TypeError:
             raise TypeError(f"'{name}'parameter value:'{obj_value}' " + \
-                            f"must be of type:'{obj_type}', " + \
+                            f"must be of type:'{exp_obj_type}', " + \
                             f"not type:'{type(obj_value).__name__}'")
         else:
             return False
@@ -389,10 +388,31 @@ def is_not_str_or_none(name:str="not-provided", value: str = None) -> bool:
     or raise TypeError or ValueError."""
     return not is_str_or_none(name, value)
 
+def is_non_empty_str(name:str="not-provided", value:str=None, 
+                   pfx:str="", raise_error:bool=False) -> bool:
+    """Positive test for non-empty str. Treat None as empty.
+    Args:
+        name (str): The name of the parameter being validated.
+        value (str): The value being validated.
+        pfx (str): The prefix to be added to the error message.
+        raise_error (bool): raise TypeError or ValueError. 
+    """
+    if not raise_error:
+        if (value is not None and 
+            isinstance(value, str) or
+            len(value) > 0): return True
+        else: return False # None or empty string is not valid
+    if value is None:
+        raise ValueError(f"'{name}' parameter value: '{value}' " 
+                         f"must be a non-empty string.")
+    if not isinstance(value, str):
+        raise TypeError(f"'{name}' parameter value: '{value}' "
+                        f"must be type:'str', not type:'{type(value).__name__}'")
+
 def str_empty(value: str, raise_error:bool=False) -> bool:
     """Check if a string is not a str or is empty.
     
-    Treat None as empty when raise_error is False.
+    If raise_error is False, treat None as empty.
     If raise_error is True, raise TypeError if value is not a str, and
     a ValueError if value is None or an empty string.
     """
