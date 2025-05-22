@@ -44,6 +44,16 @@ def po(msg : str = "") -> None:
     if _print_output: print(msg)
 #endregion po(msg:str) -> None Print Output based on "print_output" flag
 # ---------------------------------------------------------------------------- +
+#region first_n(msg:str, n:int) -> None Print first n characters of msg
+def first_n(msg : str = "", n : int = 40) -> None:
+    """Print first n characters of string."""
+    if msg is None: return None
+    delta = len(msg) - n
+    if delta > 0:
+        return f"{msg[:n]}...<{delta} more characters>"
+    return msg
+#endregion first_n(msg:str, n:int) -> None Print first n characters of msg
+# ---------------------------------------------------------------------------- +
 #region out_msg(func:function,msg : str = "no message") -> str
 def out_msg(func:callable,msg : str = "no message") -> str:
     """

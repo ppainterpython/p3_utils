@@ -22,6 +22,7 @@ from .p3_print_output_utils import (
     po, 
     set_print_output, 
     get_print_output, 
+    first_n,
     fpfx
 )
 from .p3_common_utils import (
@@ -154,6 +155,7 @@ __all__ = [
     "is_file_locked",
     "get_print_output",
     "po",
+    "first_n",
     "set_print_output",
     "is_excel_file_open",
     "ATU_CALLER_NAME",
