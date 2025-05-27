@@ -14,8 +14,8 @@ from logging import Logger
 from typing import List, Any, Type
 
 # third-party modules and packages
-import p3_utils as p3u, pyjson5, p3logging as p3l
-from openpyxl import Workbook, load_workbook
+import p3_utils as p3u, pyjson5
+from openpyxl import Workbook
 
 # local modules and packages
 #endregion Imports
@@ -24,7 +24,7 @@ from openpyxl import Workbook, load_workbook
 # Often when working with dates and times, where calculating time interval 
 # durations with a start and stop time, the units of the duration value will
 # be useful in hours, minutes or seconds. Applications using at_utils will
-# often need to initialiize start, stop and duration time values. These
+# often need to initialize start, stop and duration time values. These
 # constants are to help with that process.
 # 
 # The iso_date_*() functions are a simple, purely functional interface to
@@ -39,6 +39,13 @@ def iso_date_string(dt: datetime.datetime) -> str:
         t = type(dt).__name__
         raise TypeError("Cannot convert type:'{t}' to ISO date string")
     return dt.isoformat()
+
+def iso_date_only_string(dt: datetime.datetime) -> str:
+    """Convert a datetime object to a formatted date string."""
+    if not isinstance(dt, datetime.datetime):
+        t = type(dt).__name__
+        raise TypeError("Cannot convert type:'{t}' to ISO date string")
+    return dt.strftime("%m/%d/%Y")
 
 def iso_date(dt_str: str) -> datetime.datetime:
     """Convert an ISO format string to a datetime object."""
@@ -531,7 +538,7 @@ def at_env_info(callername:str, logger: Logger,
     # python filename that was executed
     app_file_name = os.path.basename(app_full_path)
 
-    # caller supplied value, shoule be __name__ of the caller
+    # caller supplied value, should be __name__ of the caller
     call_mode = "direct" if cn == "__main__" else "imported"
 
     # vscode_debug: Check if the script is running in a VSCode debug environment
@@ -540,7 +547,7 @@ def at_env_info(callername:str, logger: Logger,
         debugpy.is_client_connected()  
         # app_file_name == "run_pytest_script.py" \
     vscode_debug_mode = "vscode_debug" \
-        if vscode_debug_mode_test else "no vcode_debug"
+        if vscode_debug_mode_test else "no vscode_debug"
 
     # vscode_pytest: Running in a pytest environment in vscode non-debug mode
     vscode_pytest_mode_test: bool = "pytest" in sys.modules
@@ -633,7 +640,7 @@ def stop_timer(start_time: float) -> str:
         t = type(start_time).__name__
         raise TypeError(f"start_time must be type:int|float, not type: {t}")
     return f"{time.time() - start_time:6f} seconds"
-#region is_file_locked()
+#endregion timer functions
 # ---------------------------------------------------------------------------- +
 #endregion basic utility functions
 # ---------------------------------------------------------------------------- +
