@@ -14,13 +14,13 @@ from logging import Logger
 from typing import List, Any, Type
 
 # third-party modules and packages
-import p3_utils as p3u, pyjson5
+from .p3_print_output_utils import exc_err_msg
 from openpyxl import Workbook
 
 # local modules and packages
 #endregion Imports
 # ---------------------------------------------------------------------------- +
-#region ISO 8601 Timestamp functional interface
+#region ISO 8601 Format helpers
 # Often when working with dates and times, where calculating time interval 
 # durations with a start and stop time, the units of the duration value will
 # be useful in hours, minutes or seconds. Applications using at_utils will
@@ -129,7 +129,7 @@ def to_float(value) -> float:
     except (ValueError, TypeError) as e:
         e.add_note(f"{type(e).__name__}: Cannot convert '{value}' to int")
         raise
-#endregion ISO 8601 Timestamp functional interface
+#endregion ISO 8601 ISO 8601 Format helpers
 # ---------------------------------------------------------------------------- +
 #region Timestamp helper functions
 # ---------------------------------------------------------------------------- +
@@ -450,15 +450,13 @@ def str_or_default(value: str, default:str) -> str:
     """Return value if non-empty str, else return default."""
     # Check if the value is a string and not empty
     return value if str_notempty(value) else default
-# ---------------------------------------------------------------------------- +
-#region is_folder_in_path()
+
 def is_folder_in_path(foldername:str="",pathstr:str="") -> bool:
     '''Check if the folder is in the system path.'''
     if is_not_str_or_none(foldername) or \
         is_not_str_or_none(pathstr): return False 
     if (str_empty(foldername) or str_empty(pathstr)): return False
     return True if foldername in pathstr.split(os.path.sep) else False
-#endregion is_folder_in_path()
 # ---------------------------------------------------------------------------- +
 #endregion parameter validation functions
 # ---------------------------------------------------------------------------- +
@@ -474,7 +472,7 @@ def file_uri_to_path(file_uri: str) -> str:
         parsed_uri = urllib.parse.urlparse(file_uri)
         return urllib.parse.unquote(Path.PurePath(parsed_uri.path))
     except Exception as e:
-        m = p3u.exc_err_msg(e)
+        m = exc_err_msg(e)
         raise
 def path_to_file_uri(file_path: Path) -> str:
     """Convert a file path to a file URI."""
@@ -484,7 +482,7 @@ def path_to_file_uri(file_path: Path) -> str:
         # Convert the file path to a file URI
         return "file://" + urllib.parse.quote(str(file_path.as_posix()))
     except Exception as e:
-        m = p3u.exc_err_msg(e)
+        m = exc_err_msg(e)
         raise
 #endregion uri parsing functions
 # ---------------------------------------------------------------------------- +

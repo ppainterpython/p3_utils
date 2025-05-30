@@ -110,10 +110,10 @@ def exc_msg(func : callable, e : Exception) -> str:
         raise
 #endregion exc_msg(func:function,e:Exception) -> str
 # ---------------------------------------------------------------------------- +
-#region exc_err_msg(func:function,e:Exception) -> str
+#region exc_err_msg(e:Exception) -> str
 def exc_err_msg(e : Exception) -> str:
     """
-    Retrun common simple output message for Exceptions, no caller prefix.
+    Return common simple output message for Exceptions.
     
     Within a function, use to log a message in except: blocks. 
     
@@ -134,7 +134,7 @@ def exc_err_msg(e : Exception) -> str:
     except Exception as e:
         po(f"p3_utils.exc_msg() Exception: {et}({str(e)})")
         raise
-#endregion exc_msg(func:function,e:Exception) -> str
+#endregion exc_err_msg(e:Exception) -> str
 # ---------------------------------------------------------------------------- +
 #region fpfx(func : Callable) -> str) function
 def fpfx(func : callable) -> str:
@@ -155,6 +155,18 @@ def fpfx(func : callable) -> str:
         po(f"fpfx() Error: {str(e)}")
         raise
 #endregion fpfx(func : Callable) -> str) function
+# ---------------------------------------------------------------------------- +
+#region dscr(_inst) -> str
+def dscr(_inst) -> str:
+    """Return a descriptor (dscr) of the object _inst."""
+    try:
+        if _inst is None: return "None"
+        _id = hex(id(_inst))
+        _cn = _inst.__class__.__name__
+        return f"<instance '{_cn}':{_id}>"
+    except Exception as e:
+        return f"{type(e).__name__}()"
+#endregion dscr(_inst) -> str
 # ---------------------------------------------------------------------------- +
 #endregion Public functions
 # ---------------------------------------------------------------------------- +

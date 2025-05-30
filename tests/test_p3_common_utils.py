@@ -3,11 +3,9 @@
 # ---------------------------------------------------------------------------- +
 #region imports
 # python standard libraries
-import pytest, os
+import pytest
 from pathlib import Path
-
 # third-party libraries
-import inspect
 
 # local libraries
 import p3_utils as p3u
@@ -118,13 +116,13 @@ def test_is_file_locked_when_open():
         assert result is True, f"Expected True but got {result}"
 #endregion test_is_file_locked_when_open() function
 # ---------------------------------------------------------------------------- +
-#region test_is_file_locketest_is_file_locked_when_nonexistantd() function
-def test_is_file_locked_when_nonexistant():
+#region test_is_file_locked_when_nonexistent() function
+def test_is_file_locked_when_nonexistent():
     # Test with a non-existent file, errors = 'forgive' the default
     non_existent_file =  "tests/testdata/non_existent_file.txt"
     result = p3u.is_file_locked(non_existent_file)
     assert result is False, f"Expected False but got {result}"
-#endregion test_is_file_locked_when_nonexistant() function
+#endregion test_is_file_locked_when_nonexistent() function
 # ---------------------------------------------------------------------------- +
 #region test_is_file_locked_with_invalid_path_type() function
 def test_is_file_locked_with_invalid_path_type():

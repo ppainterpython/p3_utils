@@ -1,9 +1,6 @@
 # ---------------------------------------------------------------------------- +
 #region p3_excel_files.py
-""" Helpful functions concerning excel files, uses p3_utils. 
-
-    is_excel_file_open() - Check if an excel file is open now.
-"""
+""" Helpful functions concerning excel files."""
 #endregion p3_excel_files.py
 # ---------------------------------------------------------------------------- +
 #region Imports
@@ -11,12 +8,10 @@
 import psutil, shutil
 from pathlib import Path
 from typing import Callable as function
-
 # Third-party Package and Module Libraries
 import win32com.client
-
 # Local Package and Module Libraries
-from p3_utils import out_msg, exc_msg, po, set_print_output, get_print_output
+from .p3_print_output_utils import out_msg, exc_msg, po, set_print_output, get_print_output
 #endregion Imports
 # ---------------------------------------------------------------------------- +
 #region Globals and Constants

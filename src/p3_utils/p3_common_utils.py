@@ -23,18 +23,18 @@
     to force an exception to be raised.
 
     Our goal is 100% test coverage, as painful as that is to accomplish. 
-    Desiging code to be testalbe A principle applied to the p3_utils module. 
+    Designing code to be testable A principle applied to the p3_utils module. 
 """
 #endregion p3_utils.py
 # ---------------------------------------------------------------------------- +
 #region Imports
 # Standard Module Libraries
-import logging, os, sys
+import shutil
 from pathlib import Path
 from typing import Callable as function
 
 # Local Modules
-from p3_utils import out_msg, exc_msg, po, set_print_output, get_print_output
+from .p3_print_output_utils import *
 
 #endregion Imports
 # ---------------------------------------------------------------------------- +
@@ -57,7 +57,7 @@ def is_filename_only(path_str: str = None) -> bool:
 # ---------------------------------------------------------------------------- +
 #region append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str
 def append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str:
-    """ Trace and excpetion chain appending the causes """
+    """ Trace and exception chain appending the causes """
     # If the exception has a cause, append the chain up to depth
     exc = e
     msg = ""
@@ -74,7 +74,7 @@ def append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str:
 # ---------------------------------------------------------------------------- +
 #region force_exception(func, e:Exception=None
 def force_exception(func, e:Exception=None) -> str:
-    """ Raise excception e from func as caller, default ZeroDivisionError. """
+    """ Raise exception e from func as caller, default ZeroDivisionError. """
     func = force_exception if func is None else func
     dm = f"testcase: Default Exception Test for func:{func.__name__}()"
     e = ZeroDivisionError(dm) if e is None else e
@@ -106,7 +106,7 @@ def check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str:
         exc (str): The exception class name to be raised.
 
     Returns:
-        str: A short string explaining why no exeption was raised.
+        str: A short string explaining why no exception was raised.
 
     Raises:
         Exception: of the class name passed in the exc argument
@@ -171,7 +171,7 @@ def is_file_locked(file_path : str|Path =  None, errors : str = 'forgive') -> bo
             # Non-existing file cannot be locked, but error?
             return False            
             # file_path is not a str or Path object
-            # TODO: support error param for selectiong what to do about errors
+            # TODO: support error param for selecting what to do about errors
             # 'forgive' mode, default, try to forgive and continue the mission 
             # if errors == 'forgive': return False
             # if errors == 'strict':
@@ -181,12 +181,20 @@ def is_file_locked(file_path : str|Path =  None, errors : str = 'forgive') -> bo
             #     raise TypeError(m)
         # To check a lock, attempt to rename the file
         temp_path = test_path.with_suffix(test_path.suffix + ".temp")
+        if temp_path.exists():
+            # If the temp file already exists, remove it
+            temp_path.unlink()
+        backup_path = test_path.with_suffix(test_path.suffix + ".bak")
+        if backup_path.exists():
+            # If the backup file already exists, remove it
+            backup_path.unlink()
+        # copy the original file to a backup
+        shutil.copy(test_path,backup_path)  
+        # rename test_path to temp_path
+        # This will raise a PermissionError if the file is locked
         test_path.rename(temp_path)  # Rename to temp
-        temp_pathtemp_path = test_path.with_suffix(test_path.suffix + ".temp")
-        temp_pathtemp_path.rename(test_path)  # Rename to temp
-
-        # os.rename(test_path, temp_path)
-        # os.rename(temp_path, test_path)  # Revert to original name
+        # must not be locked, so undo the rename
+        temp_path.rename(test_path)  # Rename back to original
         return False  # File is not locked - Happy Path
     except TypeError as e:
         po(str(e))

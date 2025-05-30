@@ -6,39 +6,38 @@ Modules:
 - p3_common_utils: General-purpose utility functions.
 - p3_excel_utils: Functions for working with Excel files.
 
-Usage:
-    import p3_utils as p3u
-    p3u.out_msg(...)
-    p3u.is_excel_file_open(...)
 """
 
 __version__ = "0.1.0"
 __author__ = "Paul Painter"
 
 from .p3_print_output_utils import (
+    get_print_output, 
+    set_print_output, 
+    po, 
+    first_n,
     out_msg, 
     exc_msg, 
     exc_err_msg,
-    po, 
-    set_print_output, 
-    get_print_output, 
-    first_n,
-    fpfx
+    fpfx,
+    dscr
 )
 from .p3_common_utils import (
     FORCE_EXCEPTION,
     FORCE_EXCEPTION_MSG,
     is_filename_only, 
-    is_file_locked, 
-    t_of, 
-    v_of, 
     append_cause, 
     force_exception, 
-    check_testcase 
+    t_of, 
+    v_of, 
+    check_testcase,
+    is_file_locked
 )
-from .p3_excel_utils import is_excel_file_open
-
+from .p3_excel_utils import (
+    is_excel_file_open
+)
 from .p3_helper_utils import (
+    # ISO 8601 Format helpers
     ATU_DEFAULT_DURATION,
     ATU_DEFAULT_DURATION_MINUTES,
     ATU_DEFAULT_DURATION_SECONDS,
@@ -52,6 +51,7 @@ from .p3_helper_utils import (
     iso_date_approx,
     to_int,
     to_float,
+    # Timestamp helper functions
     validate_start,
     validate_stop,
     increase_time,
@@ -61,6 +61,9 @@ from .p3_helper_utils import (
     default_start_time,
     default_stop_time,
     current_timestamp,
+    timestamp_str_or_default,
+    stop_str_or_default,
+    # Parameter validation functions
     is_object_or_none,
     is_not_object_or_none,
     is_obj_of_type,
@@ -73,14 +76,15 @@ from .p3_helper_utils import (
     str_or_none,
     str_or_default,
     is_folder_in_path,
-    timestamp_str_or_default,
-    stop_str_or_default,
-    is_folder_in_path,
+    # basic utility functions
+    # uri parsing functions
     file_uri_to_path,
     path_to_file_uri,
+    # ptid functions 
     get_pid,
     get_tid,
     ptid,
+    # at_env_info functions
     ATU_CALLER_NAME,
     ATU_APP_FILE_NAME,
     ATU_CALL_MODE,
@@ -92,7 +96,9 @@ from .p3_helper_utils import (
     ATU_APP_FULL_PATH,
     ATU_APP_CWD,
     at_env_info,
+    # is_running_in_pytest,
     is_running_in_pytest,
+    # Timer functions
     start_timer,
     stop_timer
 ) 
@@ -101,6 +107,29 @@ from .p3_helper_utils import (
 # Exported functions and classes from p3_utils package.
 # The intent is for "import p3_utils as p3u" to import all of the functions and classes
 __all__ = [
+    # pr_print_output_utils
+    "get_print_output",
+    "set_print_output",
+    "po",
+    "first_n",
+    "out_msg",
+    "exc_msg",
+    "exc_err_msg",
+    "fpfx",
+    "dscr",
+    # p3_common_utils
+    FORCE_EXCEPTION,
+    FORCE_EXCEPTION_MSG,
+    "is_filename_only",
+    "append_cause",
+    "force_exception",
+    "t_of",
+    "v_of",
+    "check_testcase",
+    "is_file_locked",
+    # p3_excel_utils
+    "is_excel_file_open",
+    # p3_helper_utils - 8601 Format helpers
     "ATU_DEFAULT_DURATION",
     "ATU_DEFAULT_DURATION_MINUTES",
     "ATU_DEFAULT_DURATION_SECONDS",
@@ -114,6 +143,7 @@ __all__ = [
     "iso_date_approx",
     "to_int",
     "to_float",
+    # p3_helper_utils - Timestamp helper functions
     "validate_start",
     "validate_stop",
     "increase_time",
@@ -123,6 +153,9 @@ __all__ = [
     "default_start_time",
     "default_stop_time",
     "current_timestamp",
+    "timestamp_str_or_default",
+    "stop_str_or_default",
+    # p3_helper_utils - Parameter validation functions
     "is_object_or_none",
     "is_not_object_or_none",
     "is_obj_of_type",
@@ -135,31 +168,15 @@ __all__ = [
     "str_or_none",
     "str_or_default",
     "is_folder_in_path",
-    "timestamp_str_or_default",
-    "stop_str_or_default",
+    # p3_helper_utils - basic utility functions
+    # p3_helper_utils - uri parsing functions
     "file_uri_to_path",
     "path_to_file_uri",
+    # p3_helper_utils - ptid functions
     "get_pid",
     "get_tid",
     "ptid",
-    FORCE_EXCEPTION,
-    FORCE_EXCEPTION_MSG,
-    "check_testcase",
-    "v_of",
-    "t_of",
-    "is_filename_only",
-    "append_cause",
-    "fpfx",
-    "out_msg",
-    "exc_msg",
-    "exc_err_msg",
-    "force_exception",
-    "is_file_locked",
-    "get_print_output",
-    "po",
-    "first_n",
-    "set_print_output",
-    "is_excel_file_open",
+    # p3_helper_utils - at_env_info functions
     "ATU_CALLER_NAME",
     "ATU_APP_FILE_NAME",
     "ATU_CALL_MODE",
@@ -171,7 +188,9 @@ __all__ = [
     "ATU_APP_FULL_PATH",
     "ATU_APP_CWD",
     "at_env_info",
+    # p3_helper_utils - is_running_in_pytest,
     "is_running_in_pytest",
+    # p3_helper_utils - Timer functions
     "start_timer",
     "stop_timer",
 ]
