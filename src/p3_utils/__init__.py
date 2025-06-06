@@ -34,7 +34,10 @@ from .p3_common_utils import (
     is_file_locked
 )
 from .p3_excel_utils import (
-    is_excel_file_open
+    is_excel_file_open, 
+    open_excel_workbooks,
+    WI_NAME, WI_ABS_PATH, WI_FOLDER, WI_AUTHOR,
+    WORKBOOK_INFO_COLLECTION, WORKBOOK_INFO
 )
 from .p3_helper_utils import (
     # ISO 8601 Format helpers
@@ -128,7 +131,14 @@ __all__ = [
     "check_testcase",
     "is_file_locked",
     # p3_excel_utils
+    "WI_NAME",
+    "WI_ABS_PATH",
+    "WI_FOLDER",
+    "WI_AUTHOR",
+    "WORKBOOK_INFO_COLLECTION",
+    "WORKBOOK_INFO",
     "is_excel_file_open",
+    "open_excel_workbooks",
     # p3_helper_utils - 8601 Format helpers
     "ATU_DEFAULT_DURATION",
     "ATU_DEFAULT_DURATION_MINUTES",

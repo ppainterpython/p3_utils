@@ -7,14 +7,33 @@
 # Standard Package and Module Libraries
 import psutil, shutil
 from pathlib import Path
+from typing import Dict, Tuple
 from typing import Callable as function
 # Third-party Package and Module Libraries
 import win32com.client
 # Local Package and Module Libraries
-from .p3_print_output_utils import out_msg, exc_msg, po, set_print_output, get_print_output
+from .p3_print_output_utils import out_msg, exc_msg, exc_err_msg, po, set_print_output, get_print_output
 #endregion Imports
 # ---------------------------------------------------------------------------- +
 #region Globals and Constants
+WORKBOOK_INFO = Dict[str, str]
+WORKBOOK_INFO_COLLECTION = Dict[str, WORKBOOK_INFO]
+# Properties on Excel Workbook object
+WB_NAME = 'Name'          # Name of the workbook file
+WB_AUTHOR = 'Author'      # Author of the workbook
+WB_FullName = 'FullName'  # Absolute path to the file
+WB_PATH = 'Path'          # Absolute path to the file's folder
+# WORKBOOK_INFO keys
+WI_NAME = 'name'          # Name of the workbook file
+WI_AUTHOR = 'author'      # Author of the workbook
+WI_ABS_PATH = 'abs_path'  # Absolute path to the file
+WI_FOLDER = 'abs_folder'  # Absolute path to the file's folder
+_workbook_info = {
+    WI_NAME: None,          
+    WI_AUTHOR: None,
+    WI_ABS_PATH: None,
+    WI_FOLDER: None
+}
 _excel = None
 #endregion Globals and Constants
 # ---------------------------------------------------------------------------- +
@@ -142,6 +161,31 @@ def is_excel_running(workbook_name : str = None) -> bool:
         _em(me,e)
         raise
 #endregion is_excel_running(workbook_name : str = None) -> bool
+# ---------------------------------------------------------------------------- +
+#region open_excel_workbooks() -> bool
+def open_excel_workbooks(workbook_name : str = None) -> Tuple[bool, WORKBOOK_INFO_COLLECTION]:
+    """p3_utils: Test if an excel application is running now. """
+    me = open_excel_workbooks
+    global _excel
+    try:
+        _init_excel_files()  # Always initialize first
+        ewbs = _excel.Workbooks
+        wi_collection = dict()
+        for wb in ewbs:
+            # wb.Name, wb.Author, wb.FullName is abs_path, wb.Path is to Folder, 
+            # wb.wb_name is the full file name.
+            print(f"Workbook: {wb.Name}, Author: {wb.Author}, FullName: {wb.FullName}, Path: {wb.Path}")
+            wb_info = _workbook_info.copy()
+            wb_info[WI_NAME] = wb.Name
+            wb_info[WI_AUTHOR] = wb.Author
+            wb_info[WI_ABS_PATH] = wb.FullName
+            wb_info[WI_FOLDER] = wb.Path
+            wi_collection[wb.Name] = wb_info
+        return True, wi_collection
+    except Exception as e:
+        result = exc_err_msg(e)
+        return False, result
+#endregion open_excel_workbooks(workbook_name : str = None) -> bool
 # ---------------------------------------------------------------------------- +
 #endregion Public functions
 # ---------------------------------------------------------------------------- +

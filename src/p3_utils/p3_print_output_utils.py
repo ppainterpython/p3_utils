@@ -85,7 +85,7 @@ def out_msg(func:callable,msg : str = "no message") -> str:
 #region exc_msg(func:function,e:Exception) -> str
 def exc_msg(func : callable, e : Exception) -> str:
     """
-    Retrun a str with common simple output message for Exceptions.
+    Return str with common simple output message for Exceptions.
     
     Within a function, use to emit a message in except: blocks. 
     
@@ -143,7 +143,7 @@ def fpfx(func : callable) -> str:
         if func is not None and isinstance(func, function):
             mod_name = func.__globals__['__name__']
             func_name = func.__name__
-            # Helpling out the test cases only.
+            # Helping out the test cases only.
             if func_name == "force_exception":
                 1 / 0
             return f"{mod_name}.{func_name}():"
