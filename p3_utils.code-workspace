@@ -16,9 +16,12 @@
     ],
 	"python.analysis.reportExtraTelemetry": true,
 	"folders": [
-		{
-			"path": "."
-		}
+        {
+            "path": "."
+        },
+        {
+            "path": "../p3logging"
+        }
     ],
     "settings": {
         "python.testing.pytestEnabled": true,

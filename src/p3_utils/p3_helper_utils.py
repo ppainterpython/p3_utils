@@ -9,7 +9,10 @@ Helper functions for ISO 8601 timestamps and other common validation tests.
 # ---------------------------------------------------------------------------- +
 # python standard library modules and packages
 import datetime,threading, os, inspect, sys, debugpy, time
-import pathlib as Path, urllib.parse
+from urllib.parse import urlparse, unquote
+from pathlib import Path, PurePath
+
+
 from logging import Logger
 from typing import List, Any, Type
 
@@ -34,21 +37,21 @@ ATU_DEFAULT_DURATION = 0.5 # Default in hours for an activity entry
 ATU_DEFAULT_DURATION_MINUTES = ATU_DEFAULT_DURATION * 60.0 # Default in minutes
 ATU_DEFAULT_DURATION_SECONDS = ATU_DEFAULT_DURATION * 3600.0 # Default in seconds
 def iso_date_string(dt: datetime.datetime) -> str:
-    """Convert a datetime object to an ISO format string."""
+    """p3_utils: Convert a datetime object to an ISO format string."""
     if not isinstance(dt, datetime.datetime):
         t = type(dt).__name__
         raise TypeError("Cannot convert type:'{t}' to ISO date string")
     return dt.isoformat()
 
 def iso_date_only_string(dt: datetime.datetime) -> str:
-    """Convert a datetime object to a formatted date string."""
+    """p3_utils: Convert a datetime object to a formatted date string."""
     if not isinstance(dt, datetime.datetime):
         t = type(dt).__name__
         raise TypeError("Cannot convert type:'{t}' to ISO date string")
     return dt.strftime("%m/%d/%Y")
 
 def iso_date(dt_str: str) -> datetime.datetime:
-    """Convert an ISO format string to a datetime object."""
+    """p3_utils: Convert an ISO format string to a datetime object."""
     # parameter type validation
     if not isinstance(dt_str, (type(None),str)):
         t = type(dt_str).__name__
@@ -59,12 +62,12 @@ def iso_date(dt_str: str) -> datetime.datetime:
     return datetime.datetime.fromisoformat(dt_str)
 
 def confirm_iso_date(dt : datetime.datetime) -> bool:
-    """Confirm that the input is a datetime object."""
+    """p3_utils: Confirm that the input is a datetime object."""
     if isinstance(dt, datetime.datetime): return True
     return False
 
 def validate_iso_date_string(dt_str: str) -> bool:
-    """Validate ISO format date string."""
+    """p3_utils: Validate ISO format date string."""
     # Return True if valid
     # Otherwise raises TypeError or ValueError
     # parameter type validation, only nonzero length string is valid
@@ -83,15 +86,15 @@ def validate_iso_date_string(dt_str: str) -> bool:
         raise ValueError(f"Invalid ISO datetime str value: '{dt_str}'")
 
 def now_iso_date() -> datetime.datetime:
-    """Return the current date and time."""
+    """p3_utils: Return the current date and time."""
     return datetime.datetime.now()
 
 def now_iso_date_string() -> str:
-    """Return the current date and time in ISO format."""
+    """p3_utils: Return the current date and time in ISO format."""
     return datetime.datetime.now().isoformat()
 
 def iso_date_approx(dt1:str, dt2:str, tolerance = 1) -> bool:
-    """ Compare two ISO date strings for approximate equality within a tolerance 
+    """p3_utils: Compare two ISO date strings for approximate equality within a tolerance 
     (in seconds). """
     if not isinstance(dt1, (type(None),str)) or not isinstance(dt2, (type(None),str)):
         t = type(dt1).__name__ + " or " + type(dt2).__name__
@@ -111,7 +114,7 @@ def iso_date_approx(dt1:str, dt2:str, tolerance = 1) -> bool:
     return retval
 
 def to_int(value) -> int:
-    """Convert float value to an int, if int, return it."""
+    """p3_utils: Convert float value to an int, if int, return it."""
     try:
         if(type(value) == float):
             return round(value)
@@ -121,7 +124,7 @@ def to_int(value) -> int:
         raise 
 
 def to_float(value) -> float:
-    """Convert int value to an float, if float, return it."""
+    """p3_utils: Convert int value to an float, if float, return it."""
     try:
         if(type(value) == int): return float(value)
         if(type(value) == float): return value
@@ -135,7 +138,7 @@ def to_float(value) -> float:
 # ---------------------------------------------------------------------------- +
 #region validate_start()
 def validate_start(strt: str) -> str:
-    """Validate start time for ActivityEntry constructor."""
+    """p3_utils: Validate start time for ActivityEntry constructor."""
     # Validate strt is a valid ISO format date string for the start time
     # If dt is not type None or str, raise TypeError
     if not isinstance(strt, (type(None), str)):
@@ -150,7 +153,7 @@ def validate_start(strt: str) -> str:
 # ---------------------------------------------------------------------------- +
 #region validate_stop()
 def validate_stop(strt: str, stp: str) -> str:
-    """Validate stop time for ActivityEntry constructor."""
+    """p3_utils: Validate stop time for ActivityEntry constructor."""
     # Returns a valid ISO format date string for the stop time
     # Uses strt to determine the default stop time if stp is None or invalid
     # If either strt or stp are not type str or None, raise TypeError
@@ -170,7 +173,7 @@ def validate_stop(strt: str, stp: str) -> str:
 #region increase_time()
 def increase_time(tval : str=now_iso_date_string(), hours : int = 0, \
                   minutes : int = 0, seconds : int = 0) -> str:
-    """Increase the time by a given number of hours, minutes and seconds."""
+    """p3_utils: Increase the time by a given number of hours, minutes and seconds."""
     # TODO: handle leap year offset
     if not isinstance(tval, str):
         t = type(tval).__name__
@@ -188,7 +191,7 @@ def increase_time(tval : str=now_iso_date_string(), hours : int = 0, \
 #region decrease_time()
 def decrease_time(tval : str=now_iso_date_string(), hours : int = 0, \
                   minutes : int = 0, seconds : int = 0) -> str:
-    """Decrease the time by a given number of hours, minutes and seconds."""
+    """p3_utils: Decrease the time by a given number of hours, minutes and seconds."""
     # TODO: handle leap year offset
     if not isinstance(tval, str):
         t = type(tval).__name__
@@ -209,7 +212,7 @@ def decrease_time(tval : str=now_iso_date_string(), hours : int = 0, \
 # ---------------------------------------------------------------------------- +
 #region calculate_duration()
 def calculate_duration(start: str, stop: str, unit : str = "hours") -> float:
-    """Calculate duration in hours, minutes or seconds from start and stop times."""
+    """p3_utils: Calculate duration in hours, minutes or seconds from start and stop times."""
     # Required parameters start & stop must be valid ISO 8601 date time strings.
     # Return the duration as a float specified by units for hours, minutes or 
     # seconds.
@@ -244,7 +247,7 @@ def calculate_duration(start: str, stop: str, unit : str = "hours") -> float:
 # ---------------------------------------------------------------------------- +
 #region default_duration()
 def default_duration(unit : str = "hours") -> float:
-    """ Default duration for an activity in hours (default), minutes or seconds """
+    """p3_utils: Default duration for an activity in hours (default), minutes or seconds """
     if unit == "hours":
         return ATU_DEFAULT_DURATION
     elif unit == "minutes":
@@ -256,14 +259,14 @@ def default_duration(unit : str = "hours") -> float:
 # ---------------------------------------------------------------------------- +
 #region default_start_time()
 def default_start_time() -> str:
-    """Return current time as ISO string."""
+    """p3_utils: Return current time as ISO string."""
     # Returns the current time as an ISO string
     return datetime.datetime.now().isoformat()
 #endregion
 # ---------------------------------------------------------------------------- +
 #region default_stop_time()
 def default_stop_time(start: str = None) -> str:
-    """Return start time plus default duration as ISO string.
+    """p3_utils: Return start time plus default duration as ISO string.
     Input of None or empty string converts start time to current time.
     """
     # Uses the start time to calculate the default stop time
@@ -277,13 +280,13 @@ def default_stop_time(start: str = None) -> str:
 # ---------------------------------------------------------------------------- +
 #region current_timestamp()
 def current_timestamp() -> str:
-    """ Return the current date and time as a ISO format string """
+    """p3_utils: Return the current date and time as a ISO format string """
     return now_iso_date_string()
 #endregion
 # ---------------------------------------------------------------------------- +
 #region timestamp_str_or_default()
 def timestamp_str_or_default(value: str) -> str:
-    """Return value if non-empty str, else return current timestamp."""
+    """p3_utils: Return value if non-empty str, else return current timestamp."""
     # Check if the value is a string and not empty
     # If not, return the current timestamp as an ISO string
     return value if str_notempty(value) and validate_iso_date_string(value) \
@@ -292,7 +295,7 @@ def timestamp_str_or_default(value: str) -> str:
 # ---------------------------------------------------------------------------- +
 #region stop_str_or_default()
 def stop_str_or_default(stop: str = None, start: str = None) -> str:
-    '''Goal is to bless the stop value as a valid stop timestamp string.
+    '''p3_utils: Goal is to bless the stop value as a valid stop timestamp string.
     If it is a string that validates as an ISO timestamp, Return stop value.
     If it is None or empty, return the default stop time based on the 
     start time. The start timestamp is also validated and defaulted.
@@ -323,7 +326,7 @@ def stop_str_or_default(stop: str = None, start: str = None) -> str:
 # Common validation schemes for parameters to functions and methods.
 # In cases where type is unrecoverable, raise TypeError.
 def is_object_or_none(value: object = None) -> bool:
-    """Positive test for None or type:object, return True, else return false."""
+    """p3_utils: Positive test for None or type:object, return True, else return false."""
     if value is None: return True # None is acceptable
     # Reject primitive types (int, str, float, etc.)
     if isinstance(value, (int, str, float, bool, list, tuple, dict, set)):
@@ -333,12 +336,12 @@ def is_object_or_none(value: object = None) -> bool:
         return True  # Accept user-defined class instances
 
 def is_not_object_or_none(value: object = None) -> bool:
-    """Negative test for None or type:object."""
+    """p3_utils: Negative test for None or type:object."""
     return not is_object_or_none(value)
 
 def is_obj_of_type(name:str, obj_value: Any, exp_obj_type : Type[Any], 
                    raise_TypeError:bool=False) -> bool:
-    """Positive test for object of type: type, return True, or raise TypeError."""
+    """p3_utils: Positive test for object of type: type, return True, or raise TypeError."""
     # name parameter is the name of the parameter being validated.
     # Ensure name is a string, converting None to default string
     if name is None or isinstance(name,str) and len(name) == 0: 
@@ -367,12 +370,12 @@ def is_obj_of_type(name:str, obj_value: Any, exp_obj_type : Type[Any],
 
 def is_not_obj_of_type(name:str, object_value: object, 
                        obj_type:type, raise_TypeError:bool=False) -> bool:
-    """Negative test for None or obj."""
+    """p3_utils: Negative test for None or obj."""
     return not is_obj_of_type(name, object_value, obj_type, raise_TypeError)
 
 def is_str_or_none(name:str="not-provided", value:str=None, 
                    raise_TypeError:bool=False) -> bool:
-    """Positive test for None or type: str, return True, return False, 
+    """p3_utils: Positive test for None or type: str, return True, return False, 
     or raise TypeError or ValueError."""
     # name parameter is the name of the parameter being validated.
     if name is None: name = "converted_to_not-provided" 
@@ -391,33 +394,40 @@ def is_str_or_none(name:str="not-provided", value:str=None,
     return False # other types are False
 
 def is_not_str_or_none(name:str="not-provided", value: str = None) -> bool:
-    """Negative test for None or type: str, return True, return False, 
+    """p3_utils: Negative test for None or type: str, return True, return False, 
     or raise TypeError or ValueError."""
     return not is_str_or_none(name, value)
 
 def is_non_empty_str(name:str="not-provided", value:str=None, 
                    pfx:str="", raise_error:bool=False) -> bool:
-    """Positive test for non-empty str. Treat None as empty.
+    """p3_utils: Positive test for non-empty str. Treat None as empty.
     Args:
         name (str): The name of the parameter being validated.
         value (str): The value being validated.
         pfx (str): The prefix to be added to the error message.
         raise_error (bool): raise TypeError or ValueError. 
     """
+    # First, test the conditions. Return True if value is a non-empty string.
+    ret_value: bool = False
+    if (value is not None and 
+        isinstance(value, str) and
+        len(value) > 0): ret_value = True
+    # Next, if raise_error is False, return the result.
     if not raise_error:
-        if (value is not None and 
-            isinstance(value, str) or
-            len(value) > 0): return True
-        else: return False # None or empty string is not valid
+        return ret_value
+    # If raise_error is True, check the value again and raise appropriate errors.
     if value is None:
         raise ValueError(f"'{name}' parameter value: '{value}' " 
                          f"must be a non-empty string.")
     if not isinstance(value, str):
         raise TypeError(f"'{name}' parameter value: '{value}' "
                         f"must be type:'str', not type:'{type(value).__name__}'")
+    if len(value) == 0:
+        raise ValueError(f"'{name}' parameter value: '{value}' "
+                         f"must be a non-empty string.")
 
 def str_empty(value: str, raise_error:bool=False) -> bool:
-    """Check if a string is not a str or is empty.
+    """p3_utils: Check if a string is not a str or is empty.
     
     If raise_error is False, treat None as empty.
     If raise_error is True, raise TypeError if value is not a str, and
@@ -437,22 +447,22 @@ def str_empty(value: str, raise_error:bool=False) -> bool:
     return False
 
 def str_notempty(value: str) -> bool:
-    """Check if a string is not empty."""
+    """p3_utils: Check if a string is not empty."""
     # Check if the value is a string and not empty
     return not str_empty(value)
 
 def str_or_none(value: str) -> str:
-    """Return value if non-empty str, else return None."""
+    """p3_utils: Return value if non-empty str, else return None."""
     # Check if the value is a string and not empty
     return value if str_notempty(value) else None
 
 def str_or_default(value: str, default:str) -> str:
-    """Return value if non-empty str, else return default."""
+    """p3_utils: Return value if non-empty str, else return default."""
     # Check if the value is a string and not empty
     return value if str_notempty(value) else default
 
 def is_folder_in_path(foldername:str="",pathstr:str="") -> bool:
-    '''Check if the folder is in the system path.'''
+    '''p3_utils: Check if the folder is in the system path.'''
     if is_not_str_or_none(foldername) or \
         is_not_str_or_none(pathstr): return False 
     if (str_empty(foldername) or str_empty(pathstr)): return False
@@ -469,11 +479,23 @@ def file_uri_to_path(file_uri: str) -> str:
         if not isinstance(file_uri, str) and level(file_uri) == 0:
             raise TypeError(f"file_uri must be type:str, not type: {type(file_uri).__name__}")
         # Parse the file URI and convert it to a file path
-        parsed_uri = urllib.parse.urlparse(file_uri)
-        return urllib.parse.unquote(Path.PurePath(parsed_uri.path))
+        parsed_uri = urlparse(file_uri)
+        file_path = Path(unquote(parsed_uri.path))
+        return file_path
     except Exception as e:
         m = exc_err_msg(e)
         raise
+# def file_uri_to_path(file_uri: str) -> str:
+#     """Convert a file URI to a file path."""
+#     try:
+#         if not isinstance(file_uri, str) and level(file_uri) == 0:
+#             raise TypeError(f"file_uri must be type:str, not type: {type(file_uri).__name__}")
+#         # Parse the file URI and convert it to a file path
+#         parsed_uri = urlparse(file_uri)
+#         return unquote(PurePath(parsed_uri.path))
+#     except Exception as e:
+#         m = exc_err_msg(e)
+#         raise
 def path_to_file_uri(file_path: Path) -> str:
     """Convert a file path to a file URI."""
     try:
@@ -488,13 +510,13 @@ def path_to_file_uri(file_path: Path) -> str:
 # ---------------------------------------------------------------------------- +
 #region ptid()
 def get_pid() -> int:
-    """Return the current process ID."""
+    """p3_utils: Return the current process ID."""
     return os.getpid()
 def get_tid() -> int:
-    """Return the current thread ID."""
+    """p3_utils: Return the current thread ID."""
     return threading.get_native_id()
 def ptid()->str:
-    """Return the current [processID:threadID]."""
+    """p3_utils: Return the current [processID:threadID]."""
     return f"[{get_pid()}:{get_tid()}]"
 #endregion ptid()
 # ---------------------------------------------------------------------------- +
@@ -514,7 +536,7 @@ def at_env_info(callername:str, logger: Logger,
                 consoleprint:bool=False,
                 ) -> tuple:
     '''
-    Return a tuple with info about runtime environment.
+    p3_utils: Return a tuple with info about runtime environment.
     Content: (callername, app_file_name, call_mode,   
               "vscode_debug", "vscode_pytest", "pytest_debug_vscode",
               "pytest, python_sys_path, app_full_path, app_cwd)")
@@ -615,7 +637,7 @@ def at_env_info(callername:str, logger: Logger,
 # ---------------------------------------------------------------------------- +
 #region is_running_in_pytest()
 def is_running_in_pytest(test:int=1) -> bool:
-    """Check if the code is running in pytest."""
+    """p3_utils: Check if the code is running in pytest."""
     # Check if pytest is in the stack trace
     if not isinstance(test, int): return False
     if test == 1 and "PYTEST_CURRENT_TEST" in os.environ:
@@ -630,10 +652,10 @@ def is_running_in_pytest(test:int=1) -> bool:
 # ---------------------------------------------------------------------------- +
 #region timer functions
 def start_timer() -> float:
-    """Start a timer and return the raw time as a float."""
+    """p3_utils: Start a timer and return the raw time as a float."""
     return time.time()
 def stop_timer(start_time: float) -> str:
-    """Stop the timer and return the elapsed time in seconds as a str msg."""
+    """p3_utils: Stop the timer and return the elapsed time in seconds as a str msg."""
     if not isinstance(start_time, (int, float)):
         t = type(start_time).__name__
         raise TypeError(f"start_time must be type:int|float, not type: {t}")

@@ -31,7 +31,7 @@ def _em(func,e ) -> None:
 # ---------------------------------------------------------------------------- +
 #region _init_excel_files() function
 def _init_excel_files() -> None:
-    """ Privately initialize excel_files as a singleton. """
+    """p3_utils: Privately initialize excel_files as a singleton. """
     global _excel
     if _excel is None:
         try:
@@ -43,7 +43,7 @@ def _init_excel_files() -> None:
 #endregion init_excel_files() function
 #region _refresh_test_excel_file(workbook_name : str = None) -> bool
 def _refresh_test_excel_file() -> Path|None:
-    """ Refresh a test excel workbook file. Internal to p3_excel_utils"""
+    """p3_utils: Refresh a test excel workbook file. Internal to p3_excel_utils"""
     me = _refresh_test_excel_file
     global _excel
     try:
@@ -77,7 +77,7 @@ def _refresh_test_excel_file() -> Path|None:
 # ---------------------------------------------------------------------------- +
 #region open_excel_file(workbook_name : str = None) -> bool
 def open_excel_file(workbook_name : str = None) -> bool:
-    """ Open an excel workbook file. """
+    """p3_utils: Open an excel workbook file. """
     me = open_excel_file
     global _excel
     try:
@@ -98,7 +98,7 @@ def open_excel_file(workbook_name : str = None) -> bool:
 # ---------------------------------------------------------------------------- +
 #region close_excel_file(workbook_name : str = None) -> bool
 def close_excel_file(workbook_name : str = None) -> bool:
-    """ Close an excel workbook file  if open now. """
+    """p3_utils: Close an excel workbook file  if open now. """
     me = close_excel_file
     global _excel
     try:
@@ -114,7 +114,7 @@ def close_excel_file(workbook_name : str = None) -> bool:
 # ---------------------------------------------------------------------------- +
 #region is_excel_file_open(workbook_name : str = None) -> bool
 def is_excel_file_open(workbook_name : str = None) -> bool:
-    """ Test if an excel file is open now. """
+    """p3_utils: Test if an excel file is open now. """
     me = is_excel_file_open
     global _excel
     try:
@@ -130,7 +130,7 @@ def is_excel_file_open(workbook_name : str = None) -> bool:
 # ---------------------------------------------------------------------------- +
 #region is_excel_running(workbook_name : str = None) -> bool
 def is_excel_running(workbook_name : str = None) -> bool:
-    """ Test if an excel application is running now. """
+    """p3_utils: Test if an excel application is running now. """
     me = is_excel_running
     global _excel
     try:

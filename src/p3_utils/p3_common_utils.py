@@ -45,7 +45,7 @@ FORCE_EXCEPTION_MSG = "Forced exception for testing purposes."
 # ---------------------------------------------------------------------------- +
 #region is_filename_only(path_str: str = None) -> bool
 def is_filename_only(path_str: str = None) -> bool:
-    """ Check path_str as name of file only, no parent. """
+    """p3_utils: Check path_str as name of file only, no parent. """
     # Validate input
     if path_str is None or not isinstance(path_str, str) or len(path_str.strip()) == 0:
         raise TypeError(f"Invalid path_str: type='{type(path_str).__name__}', value='{path_str}'")
@@ -57,7 +57,7 @@ def is_filename_only(path_str: str = None) -> bool:
 # ---------------------------------------------------------------------------- +
 #region append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str
 def append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str:
-    """ Trace and exception chain appending the causes """
+    """p3_utils: Trace and exception chain appending the causes """
     # If the exception has a cause, append the chain up to depth
     exc = e
     msg = ""
@@ -74,7 +74,7 @@ def append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str:
 # ---------------------------------------------------------------------------- +
 #region force_exception(func, e:Exception=None
 def force_exception(func, e:Exception=None) -> str:
-    """ Raise exception e from func as caller, default ZeroDivisionError. """
+    """p3_utils: Raise exception e from func as caller, default ZeroDivisionError. """
     func = force_exception if func is None else func
     dm = f"testcase: Default Exception Test for func:{func.__name__}()"
     e = ZeroDivisionError(dm) if e is None else e
@@ -83,19 +83,19 @@ def force_exception(func, e:Exception=None) -> str:
 # ---------------------------------------------------------------------------- +
 #region t_of(obj) -> str
 def t_of(obj) -> str:
-    """Return type of obj as string."""
+    """p3_utils: Return type of obj as string."""
     return f"type({type(obj).__name__})"
 #endregion t_of() function
 # ---------------------------------------------------------------------------- +
 #region v_of(obj) -> str
 def v_of(obj) -> str:
-    """Return value of obj as string."""
+    """p3_utils: Return value of obj as string."""
     return f"value = '{str(obj)}'"
 #endregion v_of(obj) -> str
 # ---------------------------------------------------------------------------- +
 #region check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str
 def check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str:
-    """ Raise test case exception exc if var = p3l.FORCE_EXCEPTION. 
+    """p3_utils: Raise test case exception exc if var = p3l.FORCE_EXCEPTION. 
     
     Used in functions and methods to enable test cases to force an exception
     to test exception handling.
@@ -140,7 +140,7 @@ def check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str:
 # ---------------------------------------------------------------------------- +
 #region is_file_locked(file_path : str =  None) -> bool
 def is_file_locked(file_path : str|Path =  None, errors : str = 'forgive') -> bool:
-    """ Is a file locked by another process? """
+    """p3_utils: Is a file locked by another process? """
     try:
         me = is_file_locked
         test_path : Path = None
