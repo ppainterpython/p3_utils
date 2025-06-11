@@ -340,26 +340,26 @@ def is_not_object_or_none(value: object = None) -> bool:
     return not is_object_or_none(value)
 
 def is_obj_of_type(name:str, obj_value: Any, exp_obj_type : Type[Any], 
-                   raise_TypeError:bool=False) -> bool:
+                   raise_error:bool=False) -> bool:
     """p3_utils: Positive test for object of type: type, return True, or raise TypeError."""
     # name parameter is the name of the parameter being validated.
     # Ensure name is a string, converting None to default string
     if name is None or isinstance(name,str) and len(name) == 0: 
         name = "default_name" 
     if not isinstance(name, str): 
-        if raise_TypeError:
+        if raise_error:
             raise TypeError(f"name parameter must be type:'str', " + \
                             f"not type:'{type(name).__name__}'")
         else: return False
     # Ensure obj_type is a type object
     if exp_obj_type is None or not isinstance(exp_obj_type, type):
-        if raise_TypeError:
+        if raise_error:
             raise TypeError(f"obj_type parameter must be a type, " + \
                             f"not type:'{type(name).__name__}'")
         else: return False
     # Check if the class name provided in 'type' matches the value's type
     if not isinstance(obj_value, exp_obj_type):
-        if raise_TypeError:
+        if raise_error:
             raise TypeError(f"'{name}'parameter value:'{obj_value}' " + \
                             f"must be of type:'{exp_obj_type}', " + \
                             f"not type:'{type(obj_value).__name__}'")
@@ -369,25 +369,25 @@ def is_obj_of_type(name:str, obj_value: Any, exp_obj_type : Type[Any],
     return True
 
 def is_not_obj_of_type(name:str, object_value: object, 
-                       obj_type:type, raise_TypeError:bool=False) -> bool:
+                       obj_type:type, raise_error:bool=False) -> bool:
     """p3_utils: Negative test for None or obj."""
-    return not is_obj_of_type(name, object_value, obj_type, raise_TypeError)
+    return not is_obj_of_type(name, object_value, obj_type, raise_error)
 
 def is_str_or_none(name:str="not-provided", value:str=None, 
-                   raise_TypeError:bool=False) -> bool:
+                   raise_error:bool=False) -> bool:
     """p3_utils: Positive test for None or type: str, return True, return False, 
     or raise TypeError or ValueError."""
     # name parameter is the name of the parameter being validated.
     if name is None: name = "converted_to_not-provided" 
     if not isinstance(name, str): 
-        if raise_TypeError:
+        if raise_error:
             raise TypeError(f"name parameter must be type:'str', " + \
                             f"not type:'{type(name).__name__}'")
         else: return False
     # value parameter is the value being validated.
     if value is None: return True # None is acceptable
     if isinstance(value, str): return True # type: str is acceptable
-    if(raise_TypeError):
+    if(raise_error):
         raise TypeError(f"'{name}'parameter value:'{value}' must be " + \
                         f"type:'str' or None, " + \
                         f"not type:'{type(value).__name__}'")

@@ -643,7 +643,7 @@ def test_is_obj_of_type():
     assert not p3u.is_obj_of_type(vn,obj,123), \
         "is_obj_of_type() failed for empty dictionary"
     
-    # Test with invalid type with raise_TypeError=True
+    # Test with invalid type with raise_error=True
     with pytest.raises(TypeError):
         p3u.is_obj_of_type(123,123,TestClass,True), \
             "is_obj_of_type() failed for integer name parameter"

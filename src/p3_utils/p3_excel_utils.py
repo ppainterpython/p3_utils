@@ -163,7 +163,7 @@ def is_excel_running(workbook_name : str = None) -> bool:
 #endregion is_excel_running(workbook_name : str = None) -> bool
 # ---------------------------------------------------------------------------- +
 #region open_excel_workbooks() -> bool
-def open_excel_workbooks(workbook_name : str = None) -> Tuple[bool, WORKBOOK_INFO_COLLECTION]:
+def open_excel_workbooks() -> Tuple[bool, WORKBOOK_INFO_COLLECTION]:
     """p3_utils: Test if an excel application is running now. """
     me = open_excel_workbooks
     global _excel
