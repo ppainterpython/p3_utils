@@ -8,12 +8,9 @@ Helper functions for ISO 8601 timestamps and other common validation tests.
 #region Imports
 # ---------------------------------------------------------------------------- +
 # python standard library modules and packages
-import datetime,threading, os, inspect, sys, debugpy, time
-from urllib.parse import urlparse, unquote
+import datetime,threading, os, inspect, sys, debugpy, time, logging
+from urllib.parse import urlparse, unquote, quote
 from pathlib import Path, PurePath
-
-
-from logging import Logger
 from typing import List, Any, Type
 
 # third-party modules and packages
@@ -22,6 +19,10 @@ from openpyxl import Workbook
 
 # local modules and packages
 #endregion Imports
+# ---------------------------------------------------------------------------- +
+#region Globals and Constants
+logger = logging.getLogger(__name__)
+#endregion Globals and Constants
 # ---------------------------------------------------------------------------- +
 #region ISO 8601 Format helpers
 # Often when working with dates and times, where calculating time interval 
@@ -473,6 +474,48 @@ def is_folder_in_path(foldername:str="",pathstr:str="") -> bool:
 #region basic utility functions
 # ---------------------------------------------------------------------------- +
 #region uri parsing functions
+#region    verify_url_file_path(url: str) function 
+def verify_url_file_path(url: str,test:bool=True) -> Path:
+    """Verify that the URL is a valid file path and return it as a Path object."""
+    try:
+        is_non_empty_str("url", url, raise_error=True)
+        parsed_url = urlparse(url)
+        if parsed_url.scheme != "file":
+            raise ValueError(f"URL scheme is not 'file': {parsed_url.scheme}")
+        file_path = Path.from_uri(url)
+        if test and not file_path.exists():
+            raise FileNotFoundError(f"File does not exist: {file_path}")
+        return file_path
+    except Exception as e:
+        raise
+#endregion verify_url_file_path(url: str) function
+# ---------------------------------------------------------------------------- +
+#region 
+def verify_file_path_for_load(file_path: Path) -> None:
+    """Verify that the file path is valid and ready to load or raise error."""
+    try:
+        is_obj_of_type("file_path", file_path, Path, raise_error=True)
+        if not file_path.exists():
+            raise FileNotFoundError(f"File does not exist: {file_path}")
+        if not file_path.exists():
+            m = f"file does not exist: {file_path}"
+            logger.error(m)
+            raise FileNotFoundError(m)
+        if not file_path.is_file():
+            m = f"csv_path is not a file: '{file_path}'"
+            logger.error(m)
+            raise ValueError(m)
+        if not file_path.suffix in [".csv", ".xlsx", ".xls", ".json", ".jsonc"]:
+            m = f"file_path filetype is not supported: {file_path.suffix}"
+            logger.error(m)
+            raise ValueError(m)
+        if file_path.stat().st_size == 0:
+            m = f"file is empty: {file_path}"
+            logger.error(m)
+            raise ValueError(m)
+    except Exception as e:
+        logger.error(exc_err_msg(e))
+        raise
 def file_uri_to_path(file_uri: str) -> str:
     """Convert a file URI to a file path."""
     try:
@@ -485,24 +528,13 @@ def file_uri_to_path(file_uri: str) -> str:
     except Exception as e:
         m = exc_err_msg(e)
         raise
-# def file_uri_to_path(file_uri: str) -> str:
-#     """Convert a file URI to a file path."""
-#     try:
-#         if not isinstance(file_uri, str) and level(file_uri) == 0:
-#             raise TypeError(f"file_uri must be type:str, not type: {type(file_uri).__name__}")
-#         # Parse the file URI and convert it to a file path
-#         parsed_uri = urlparse(file_uri)
-#         return unquote(PurePath(parsed_uri.path))
-#     except Exception as e:
-#         m = exc_err_msg(e)
-#         raise
 def path_to_file_uri(file_path: Path) -> str:
     """Convert a file path to a file URI."""
     try:
         if not isinstance(file_path, Path.Path):
             raise TypeError(f"file_path must be type:Path, not type: {type(file_path).__name__}")
         # Convert the file path to a file URI
-        return "file://" + urllib.parse.quote(str(file_path.as_posix()))
+        return "file://" + quote(str(file_path.as_posix()))
     except Exception as e:
         m = exc_err_msg(e)
         raise
@@ -532,7 +564,7 @@ ATU_PYTEST_MODE = 6         # 6: pytest_mode
 ATU_PYTHON_SYS_PATH = 7     # 7: python_sys_path
 ATU_APP_FULL_PATH = 8       # 8: app_full_path
 ATU_APP_CWD = 9             # 9: app_cwd
-def at_env_info(callername:str, logger: Logger,
+def at_env_info(callername:str, logger: logging.Logger,
                 consoleprint:bool=False,
                 ) -> tuple:
     '''
@@ -550,7 +582,7 @@ def at_env_info(callername:str, logger: Logger,
         t = type(consoleprint).__name__
         raise TypeError(f"consoleprint must be type:bool, not type: {t}")
     #
-    _ = is_not_obj_of_type(cn, logger, Logger, True) # raises TypeError if not Logger
+    _ = is_not_obj_of_type(cn, logger, logging.Logger, True) # raises TypeError if not Logger
     argv = sys.argv
     # Full path to the application
     app_full_path = argv[0] if len(argv) >= 1 else "unknown"

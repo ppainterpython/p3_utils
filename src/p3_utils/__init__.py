@@ -81,6 +81,8 @@ from .p3_helper_utils import (
     is_folder_in_path,
     # basic utility functions
     # uri parsing functions
+    verify_url_file_path,
+    verify_file_path_for_load,
     file_uri_to_path,
     path_to_file_uri,
     # ptid functions 
@@ -180,6 +182,8 @@ __all__ = [
     "is_folder_in_path",
     # p3_helper_utils - basic utility functions
     # p3_helper_utils - uri parsing functions
+    "verify_url_file_path",
+    "verify_file_path_for_load",
     "file_uri_to_path",
     "path_to_file_uri",
     # p3_helper_utils - ptid functions
