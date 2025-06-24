@@ -1,9 +1,9 @@
 # ---------------------------------------------------------------------------- +
-#region at_utils.py
+#region p3_helper_utils.py
 """
 Helper functions for ISO 8601 timestamps and other common validation tests.
 """
-#endregion at_utils.py
+#endregion p3_helper_utils.py
 # ---------------------------------------------------------------------------- +
 #region Imports
 # ---------------------------------------------------------------------------- +
@@ -492,7 +492,8 @@ def verify_url_file_path(url: str,test:bool=True) -> Path:
 # ---------------------------------------------------------------------------- +
 #region 
 def verify_file_path_for_load(file_path: Path) -> None:
-    """Verify that the file path is valid and ready to load or raise error."""
+    """Verify that the file path is valid and ready to load or raise error.
+    returns None if the file path is valid, else raises an error."""
     try:
         is_obj_of_type("file_path", file_path, Path, raise_error=True)
         if not file_path.exists():
@@ -516,6 +517,42 @@ def verify_file_path_for_load(file_path: Path) -> None:
     except Exception as e:
         logger.error(exc_err_msg(e))
         raise
+
+def verify_file_path_for_save(file_path: Path) -> None:
+    """Verify that the file path is valid and ready to save or raise error.
+    returns None if the file path is valid, else raises an error.
+    """
+    try:
+        is_obj_of_type("file_path", file_path, Path, raise_error=True)
+        if file_path.exists():
+            if not file_path.is_file():
+                m = f"csv_path exists but is not a file: '{file_path}'"
+                logger.error(m)
+                raise ValueError(m)
+            if not os.access(file_path, os.W_OK):
+                m = f"csv_path exists but is not writable: '{file_path}'"
+                logger.error(m)
+                raise PermissionError(m)
+        else:
+            # If the file does not exist, check if the parent directory exists
+            parent_dir = file_path.parent
+            if not parent_dir.exists():
+                m = f"parent directory does not exist: '{parent_dir}'"
+                logger.error(m)
+                raise FileNotFoundError(m)
+            if not os.access(parent_dir, os.W_OK):
+                # If the parent directory exists but is not writable, raise PermissionError
+                m = f"parent directory is not writable: '{parent_dir}'"
+                logger.error(m)
+                raise PermissionError(m)
+        if not file_path.suffix in [".csv", ".xlsx", ".xls", ".json", ".jsonc"]:
+            m = f"file_path filetype is not supported: {file_path.suffix}"
+            logger.error(m)
+            raise ValueError(m)
+    except Exception as e:
+        logger.error(exc_err_msg(e))
+        raise
+
 def file_uri_to_path(file_uri: str) -> str:
     """Convert a file URI to a file path."""
     try:

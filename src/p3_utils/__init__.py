@@ -5,6 +5,8 @@ Modules:
 - p3_print_output_utils: Functions for logging and output formatting.
 - p3_common_utils: General-purpose utility functions.
 - p3_excel_utils: Functions for working with Excel files.
+- p3_helper_utils: Helper functions for various tasks, including date handling, parameter validation, and environment info.
+- p3_utils: Main module that imports and exposes all utility functions and classes.
 
 """
 
@@ -83,6 +85,7 @@ from .p3_helper_utils import (
     # uri parsing functions
     verify_url_file_path,
     verify_file_path_for_load,
+    verify_file_path_for_save,
     file_uri_to_path,
     path_to_file_uri,
     # ptid functions 
@@ -106,13 +109,19 @@ from .p3_helper_utils import (
     # Timer functions
     start_timer,
     stop_timer
+)
+
+from .p3_file_helpers import (
+    copy_backup
 ) 
 
 # ---------------------------------------------------------------------------- +
 # Exported functions and classes from p3_utils package.
 # The intent is for "import p3_utils as p3u" to import all of the functions and classes
 __all__ = [
-    # pr_print_output_utils
+    # p3_file_helpers
+    "copy_backup",
+    # p3_print_output_utils
     "get_print_output",
     "set_print_output",
     "po",
