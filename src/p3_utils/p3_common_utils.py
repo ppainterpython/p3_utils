@@ -29,9 +29,11 @@
 # ---------------------------------------------------------------------------- +
 #region Imports
 # Standard Module Libraries
-import shutil
+import shutil, hashlib, sys
 from pathlib import Path
 from typing import Callable as function
+import importlib.util
+import types
 
 # Local Modules
 from .p3_print_output_utils import *
@@ -42,18 +44,6 @@ from .p3_print_output_utils import *
 FORCE_EXCEPTION = "force_exception"
 FORCE_EXCEPTION_MSG = "Forced exception for testing purposes."
 #endregion Globals and Constants
-# ---------------------------------------------------------------------------- +
-#region is_filename_only(path_str: str = None) -> bool
-def is_filename_only(path_str: str = None) -> bool:
-    """p3_utils: Check path_str as name of file only, no parent. """
-    # Validate input
-    if path_str is None or not isinstance(path_str, str) or len(path_str.strip()) == 0:
-        raise TypeError(f"Invalid path_str: type='{type(path_str).__name__}', value='{path_str}'")
-    
-    path = Path(path_str)
-    # Check if the path has no parent folders    
-    return path.parent == Path('.')
-#endregion is_filename_only(path_str: str = None) -> bool
 # ---------------------------------------------------------------------------- +
 #region append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str
 def append_cause(msg:str = None, e:Exception=None, depth:int=0) -> str:
@@ -92,6 +82,14 @@ def v_of(obj) -> str:
     """p3_utils: Return value of obj as string."""
     return f"value = '{str(obj)}'"
 #endregion v_of(obj) -> str
+# ---------------------------------------------------------------------------- +
+#region has_property(obj,prop) -> bool
+def has_property(obj, prop:str) -> bool:
+    """p3_utils: Test whether obj has a property. Obj may be a class instance or a dict."""
+    if isinstance(obj, dict):
+        return prop in obj
+    return hasattr(obj, prop)
+#endregion has_property(obj,prop) -> bool
 # ---------------------------------------------------------------------------- +
 #region check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str
 def check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str:
@@ -138,95 +136,32 @@ def check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str:
         return f"Error creating {exc}(), msg = '{str(e)}'"
 #endregion check_testcase(func, var : str, exc : str = "ZeroDivisionError") -> str
 # ---------------------------------------------------------------------------- +
-#region is_file_locked(file_path : str =  None) -> bool
-def is_file_locked(file_path : str|Path =  None, errors : str = 'forgive') -> bool:
-    """p3_utils: Is a file locked by another process? """
-    try:
-        me = is_file_locked
-        test_path : Path = None
-        # Validate file_path is non-zero length str or Path object
-        if (file_path is None or 
-            not isinstance(file_path, Path) or
-            (isinstance(file_path, str) and 
-            len(file_path.name) <= 0)):
-            # file_path is None or not a Path obj, or a non-zero length str
-            if errors == 'strict':
-                # 'strict' mode, raise error file_path not a str or Path object
-                m = out_msg(me, f"Invalid file_path: type=" 
-                                f"'{type(file_path).__name__}', value='{file_path}'")
-                raise TypeError(m)
-            return False # add errors support here
-        elif isinstance(file_path, str) and len(file_path.strip()) > 0:
-            # convert str file_path to Path obj
-            test_path = Path(file_path)
-        else:
-            # file_path is a Path object
-            test_path = file_path
-        # Validate the test_path is reachable
-        if not test_path.is_absolute():
-            # Resolve the path before checking if it exists
-            test_path = test_path.resolve()
-        # Check if the file exists
-        if not test_path.exists():
-            # Non-existing file cannot be locked, but error?
-            return False            
-            # file_path is not a str or Path object
-            # TODO: support error param for selecting what to do about errors
-            # 'forgive' mode, default, try to forgive and continue the mission 
-            # if errors == 'forgive': return False
-            # if errors == 'strict':
-            #     # 'strict' mode, raise error file_path not a str or Path object
-            #     m = out_msg(me, f"Invalid file_path: type=" 
-            #                     f"'{type(file_path).__name__}', value='{file_path}'")
-            #     raise TypeError(m)
-        # To check a lock, attempt to rename the file
-        temp_path = test_path.with_suffix(test_path.suffix + ".temp")
-        if temp_path.exists():
-            # If the temp file already exists, remove it
-            temp_path.unlink()
-        backup_path = test_path.with_suffix(test_path.suffix + ".bak")
-        if backup_path.exists():
-            # If the backup file already exists, remove it
-            backup_path.unlink()
-        # copy the original file to a backup
-        shutil.copy(test_path,backup_path)  
-        # rename test_path to temp_path
-        # This will raise a PermissionError if the file is locked
-        test_path.rename(temp_path)  # Rename to temp
-        # must not be locked, so undo the rename
-        temp_path.rename(test_path)  # Rename back to original
-        return False  # File is not locked - Happy Path
-    except TypeError as e:
-        po(str(e))
-        if errors == 'strict':
-            raise
-        return False
-    except PermissionError as e:
-        po(str(e))
-        if errors == 'strict':
-            raise
-        return True   # File is locked - Happy Path
-    except FileNotFoundError as e:
-        po(str(e))
-        if errors == 'strict':
-            raise
-        return False
-    except Exception as e:
-        po(str(e))
-        if errors == 'strict':
-            raise
-        return False
-#endregion is_file_locked(file_path : str =  None) -> bool
+#region gen_hash_key(text: str, length:int=12) -> str
+def gen_hash_key(text: str, length:int=12) -> str:
+    """Generate a hash key from the input text."""
+    # Create a SHA-256 hash of the input text
+    sha256 = hashlib.sha256()
+    sha256.update(text.encode('utf-8'))
+    # Return the hexadecimal digest of the hash, truncated to the desired length
+    return sha256.hexdigest()[:length]
+#endregion gen_hash_key(text: str, length:int=12) -> str
 # ---------------------------------------------------------------------------- +
-#endregion Public functions
-# ---------------------------------------------------------------------------- +
-#region Local __main__ stand-alone
-if __name__ == "__main__":
+#region impor_modeule_from_path()
+def import_module_from_path(module_name: str, module_path: Path) -> types.ModuleType:
+    """Import a module from a given file path."""
     try:
-        me = __name__
-        set_print_output(True)
+        if not module_path.exists():
+            raise FileNotFoundError(f"Module path does not exist: {module_path}")
+        spec = importlib.util.spec_from_file_location(module_name, module_path)
+        if spec is None:
+            raise ImportError(f"Could not load spec for module '{module_name}' from '{module_path}'")
+        module = importlib.util.module_from_spec(spec)
+        # Register in sys.modules BEFORE exec_module
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+        return module
     except Exception as e:
-        print(exc_msg("__main__",e))
-        _ = "pause"
-    exit(0)
-#endregion Local __main__ stand-alone
+        print(f"Error importing module '{module_name}' from '{module_path}': {e}")
+        raise
+#endregion import_module_from_path()
+# ---------------------------------------------------------------------------- +

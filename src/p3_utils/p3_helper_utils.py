@@ -11,7 +11,7 @@ Helper functions for ISO 8601 timestamps and other common validation tests.
 import datetime,threading, os, inspect, sys, debugpy, time, logging
 from urllib.parse import urlparse, unquote, quote
 from pathlib import Path, PurePath
-from typing import List, Any, Type
+from typing import List, Any, Optional, Type
 
 # third-party modules and packages
 from .p3_print_output_utils import exc_err_msg
@@ -399,13 +399,40 @@ def is_not_str_or_none(name:str="not-provided", value: str = None) -> bool:
     or raise TypeError or ValueError."""
     return not is_str_or_none(name, value)
 
+def is_non_empty_dict(name:str="not-provided", value:Optional[dict]=None, 
+                   pfx:str="", raise_error:bool=False) -> bool:
+    """p3_utils: Positive test for non-empty dict. Treat None as empty.
+    Args:
+        name (str): The name of the parameter being validated.
+        value (dict): The value being validated.
+        pfx (str): The prefix to be added to the error message.
+        raise_error (bool): raise TypeError or ValueError. 
+    """
+    # First, test the conditions. Return True if value is a non-empty dict.
+    ret_value: bool = False
+    if (value is not None and 
+        isinstance(value, dict) and
+        len(value) > 0): ret_value = True
+    # Next, if raise_error is False, return the result.
+    if not raise_error:
+        return ret_value
+    # If raise_error is True, check the value again and raise appropriate errors.
+    if value is None:
+        raise ValueError(f"'{name}' parameter value: '{value}' " 
+                         f"must be a non-empty dict.")
+    if not isinstance(value, dict):
+        raise TypeError(f"'{name}' parameter value: '{value}' "
+                        f"must be type:'dict', not type:'{type(value).__name__}'")
+    if len(value) == 0:
+        raise ValueError(f"'{name}' parameter value: '{value}' "
+                         f"must be a non-empty dict.")
+
 def is_non_empty_str(name:str="not-provided", value:str=None, 
                    pfx:str="", raise_error:bool=False) -> bool:
     """p3_utils: Positive test for non-empty str. Treat None as empty.
     Args:
         name (str): The name of the parameter being validated.
         value (str): The value being validated.
-        pfx (str): The prefix to be added to the error message.
         raise_error (bool): raise TypeError or ValueError. 
     """
     # First, test the conditions. Return True if value is a non-empty string.
@@ -426,6 +453,16 @@ def is_non_empty_str(name:str="not-provided", value:str=None,
     if len(value) == 0:
         raise ValueError(f"'{name}' parameter value: '{value}' "
                          f"must be a non-empty string.")
+
+def is_not_non_empty_str(name:str="not-provided", value:str=None, 
+                         raise_error:bool=False) -> bool:
+    """p3_utils: Negative test for non-empty str. Treat None as empty.
+    Args:
+        name (str): The name of the parameter being validated.
+        value (str): The value being validated.
+        raise_error (bool): raise TypeError or ValueError. 
+    """
+    return not is_non_empty_str(name, value, raise_error=raise_error)
 
 def str_empty(value: str, raise_error:bool=False) -> bool:
     """p3_utils: Check if a string is not a str or is empty.
@@ -490,7 +527,6 @@ def verify_url_file_path(url: str,test:bool=True) -> Path:
         raise
 #endregion verify_url_file_path(url: str) function
 # ---------------------------------------------------------------------------- +
-#region 
 def verify_file_path_for_load(file_path: Path) -> None:
     """Verify that the file path is valid and ready to load or raise error.
     returns None if the file path is valid, else raises an error."""
@@ -499,14 +535,15 @@ def verify_file_path_for_load(file_path: Path) -> None:
         if not file_path.exists():
             raise FileNotFoundError(f"File does not exist: {file_path}")
         if not file_path.exists():
-            m = f"file does not exist: {file_path}"
+            m = f"file_path does not exist: {file_path}"
             logger.error(m)
             raise FileNotFoundError(m)
         if not file_path.is_file():
-            m = f"csv_path is not a file: '{file_path}'"
+            m = f"file_path is not a file: '{file_path}'"
             logger.error(m)
             raise ValueError(m)
-        if not file_path.suffix in [".csv", ".xlsx", ".xls", ".json", ".jsonc"]:
+        if not file_path.suffix in [".csv", ".xlsx", ".xls", ".json", ".jsonc",
+                                    ".txt", ".toml"]:
             m = f"file_path filetype is not supported: {file_path.suffix}"
             logger.error(m)
             raise ValueError(m)
@@ -565,6 +602,7 @@ def file_uri_to_path(file_uri: str) -> str:
     except Exception as e:
         m = exc_err_msg(e)
         raise
+
 def path_to_file_uri(file_path: Path) -> str:
     """Convert a file path to a file URI."""
     try:

@@ -9,10 +9,16 @@ Modules:
 - p3_utils: Main module that imports and exposes all utility functions and classes.
 
 """
-
 __version__ = "0.1.0"
 __author__ = "Paul Painter"
 
+from .p3_file_helpers import (
+    copy_backup,
+    find_folder,
+    is_file_locked,
+    is_filename_only, 
+    is_valid_path
+) 
 from .p3_print_output_utils import (
     get_print_output, 
     set_print_output, 
@@ -22,18 +28,20 @@ from .p3_print_output_utils import (
     exc_msg, 
     exc_err_msg,
     fpfx,
-    dscr
+    dscr,
+    split_parts
 )
 from .p3_common_utils import (
     FORCE_EXCEPTION,
     FORCE_EXCEPTION_MSG,
-    is_filename_only, 
     append_cause, 
     force_exception, 
     t_of, 
     v_of, 
+    has_property,
     check_testcase,
-    is_file_locked
+    gen_hash_key,
+    import_module_from_path
 )
 from .p3_excel_utils import (
     is_excel_file_open, 
@@ -41,7 +49,9 @@ from .p3_excel_utils import (
     WI_NAME, WI_ABS_PATH, WI_FOLDER, WI_AUTHOR,
     WORKBOOK_INFO_COLLECTION, WORKBOOK_INFO
 )
+
 from .p3_helper_utils import (
+    #region
     # ISO 8601 Format helpers
     ATU_DEFAULT_DURATION,
     ATU_DEFAULT_DURATION_MINUTES,
@@ -75,7 +85,9 @@ from .p3_helper_utils import (
     is_not_obj_of_type,
     is_str_or_none,
     is_not_str_or_none,
+    is_non_empty_dict,
     is_non_empty_str,
+    is_not_non_empty_str,
     str_empty,
     str_notempty,
     str_or_none,
@@ -109,11 +121,8 @@ from .p3_helper_utils import (
     # Timer functions
     start_timer,
     stop_timer
+    #endregion
 )
-
-from .p3_file_helpers import (
-    copy_backup
-) 
 
 # ---------------------------------------------------------------------------- +
 # Exported functions and classes from p3_utils package.
@@ -121,6 +130,10 @@ from .p3_file_helpers import (
 __all__ = [
     # p3_file_helpers
     "copy_backup",
+    "find_folder",
+    "is_file_locked",
+    "is_filename_only",
+    "is_valid_path",
     # p3_print_output_utils
     "get_print_output",
     "set_print_output",
@@ -131,16 +144,18 @@ __all__ = [
     "exc_err_msg",
     "fpfx",
     "dscr",
+    "split_parts",
     # p3_common_utils
     FORCE_EXCEPTION,
     FORCE_EXCEPTION_MSG,
-    "is_filename_only",
     "append_cause",
     "force_exception",
     "t_of",
     "v_of",
+    "has_property",
     "check_testcase",
-    "is_file_locked",
+    "gen_hash_key",
+    "import_module_from_path",
     # p3_excel_utils
     "WI_NAME",
     "WI_ABS_PATH",
@@ -183,7 +198,9 @@ __all__ = [
     "is_not_obj_of_type",
     "is_str_or_none",
     "is_not_str_or_none",
+    "is_non_empty_dict",
     "is_non_empty_str",
+    "is_not_non_empty_str",
     "str_empty",
     "str_notempty",
     "str_or_none",

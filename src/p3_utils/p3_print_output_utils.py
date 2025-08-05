@@ -168,5 +168,16 @@ def dscr(_inst) -> str:
         return f"{type(e).__name__}()"
 #endregion dscr(_inst) -> str
 # ---------------------------------------------------------------------------- +
+#region split_parts()
+def split_parts(src: str, delimiter: str='.', size: int=3) -> list:
+    # Split the source string by the delimiter
+    parts = src.split(delimiter)
+    
+    # If the split result is shorter than the desired size, pad with empty strings
+    result = parts[:size] + [''] * (size - len(parts))
+    
+    # If the split result is longer than the desired size, truncate it
+    return result[:size]
+#endregion split_parts()
 #endregion Public functions
 # ---------------------------------------------------------------------------- +
