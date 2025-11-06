@@ -12,6 +12,13 @@ Modules:
 __version__ = "0.1.0"
 __author__ = "Paul Painter"
 
+from .p3_app_timing import (
+    start_timer,
+    stop_timer,
+    elapsed_timer,
+    elapsed_timer_str,
+    APP_START_TIME
+)
 from .p3_file_helpers import (
     copy_backup,
     find_folder,
@@ -118,9 +125,6 @@ from .p3_helper_utils import (
     at_env_info,
     # is_running_in_pytest,
     is_running_in_pytest,
-    # Timer functions
-    start_timer,
-    stop_timer
     #endregion
 )
 
@@ -128,6 +132,12 @@ from .p3_helper_utils import (
 # Exported functions and classes from p3_utils package.
 # The intent is for "import p3_utils as p3u" to import all of the functions and classes
 __all__ = [
+    # p3_app_timing
+    "start_timer",
+    "stop_timer",
+    "elapsed_timer",
+    "elapsed_timer_str",
+    "APP_START_TIME",
     # p3_file_helpers
     "copy_backup",
     "find_folder",
@@ -230,7 +240,4 @@ __all__ = [
     "at_env_info",
     # p3_helper_utils - is_running_in_pytest,
     "is_running_in_pytest",
-    # p3_helper_utils - Timer functions
-    "start_timer",
-    "stop_timer",
 ]

@@ -757,17 +757,5 @@ def is_running_in_pytest(test:int=1) -> bool:
     return False
 #endregion is_running_in_pytest()
 # ---------------------------------------------------------------------------- +
-#region timer functions
-def start_timer() -> float:
-    """p3_utils: Start a timer and return the raw time as a float."""
-    return time.time()
-def stop_timer(start_time: float) -> str:
-    """p3_utils: Stop the timer and return the elapsed time in seconds as a str msg."""
-    if not isinstance(start_time, (int, float)):
-        t = type(start_time).__name__
-        raise TypeError(f"start_time must be type:int|float, not type: {t}")
-    return f"{time.time() - start_time:6f} seconds"
-#endregion timer functions
-# ---------------------------------------------------------------------------- +
 #endregion basic utility functions
 # ---------------------------------------------------------------------------- +

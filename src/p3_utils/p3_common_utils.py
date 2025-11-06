@@ -31,7 +31,7 @@
 # Standard Module Libraries
 import shutil, hashlib, sys
 from pathlib import Path
-from typing import Callable as function
+from typing import Callable as function, Union
 import importlib.util
 import types
 
@@ -84,7 +84,7 @@ def v_of(obj) -> str:
 #endregion v_of(obj) -> str
 # ---------------------------------------------------------------------------- +
 #region has_property(obj,prop) -> bool
-def has_property(obj, prop:str) -> bool:
+def has_property(obj:Union[object,dict], prop:str) -> bool:
     """p3_utils: Test whether obj has a property. Obj may be a class instance or a dict."""
     if isinstance(obj, dict):
         return prop in obj
