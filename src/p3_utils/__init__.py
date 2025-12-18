@@ -36,7 +36,8 @@ from .p3_print_output_utils import (
     exc_err_msg,
     fpfx,
     dscr,
-    split_parts
+    split_parts,
+    format_tree_view
 )
 from .p3_common_utils import (
     FORCE_EXCEPTION,
@@ -48,6 +49,7 @@ from .p3_common_utils import (
     has_property,
     check_testcase,
     gen_hash_key,
+    gen_unique_hex_id,
     import_module_from_path
 )
 from .p3_excel_utils import (
@@ -155,6 +157,7 @@ __all__ = [
     "fpfx",
     "dscr",
     "split_parts",
+    "format_tree_view",
     # p3_common_utils
     FORCE_EXCEPTION,
     FORCE_EXCEPTION_MSG,
@@ -165,6 +168,7 @@ __all__ = [
     "has_property",
     "check_testcase",
     "gen_hash_key",
+    "gen_unique_hex_id",
     "import_module_from_path",
     # p3_excel_utils
     "WI_NAME",

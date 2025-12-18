@@ -18,6 +18,20 @@ Modules:
 __version__ = "0.1.0"
 __author__ = "Paul Painter"
 
+from .p3_app_timing import (
+    start_timer,
+    stop_timer,
+    elapsed_timer,
+    elapsed_timer_str,
+    APP_START_TIME
+)
+from .p3_file_helpers import (
+    copy_backup,
+    find_folder,
+    is_file_locked,
+    is_filename_only, 
+    is_valid_path
+) 
 from .p3_print_output_utils import (
     get_print_output, 
     set_print_output, 
@@ -27,18 +41,20 @@ from .p3_print_output_utils import (
     exc_msg, 
     exc_err_msg,
     fpfx,
-    dscr
+    dscr,
+    split_parts
 )
 from .p3_common_utils import (
     FORCE_EXCEPTION,
     FORCE_EXCEPTION_MSG,
-    is_filename_only, 
     append_cause, 
     force_exception, 
     t_of, 
     v_of, 
+    has_property,
     check_testcase,
-    is_file_locked
+    gen_hash_key,
+    import_module_from_path
 )
 from .p3_excel_utils import (
     is_excel_file_open, 

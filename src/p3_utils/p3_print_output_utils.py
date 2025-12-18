@@ -12,11 +12,13 @@
 # Standard Package and Module Libraries
 from typing import Callable as function
 from pathlib import Path
-import traceback
+import traceback, io, sys
 
 # Third-party Package and Module Libraries
+from treelib import Tree
 
 # Local Package and Module Libraries
+
 #endregion Imports
 # ---------------------------------------------------------------------------- +
 #region Globals and Constants
@@ -179,5 +181,24 @@ def split_parts(src: str, delimiter: str='.', size: int=3) -> list:
     # If the split result is longer than the desired size, truncate it
     return result[:size]
 #endregion split_parts()
+# ---------------------------------------------------------------------------- +
+#region    format_tree_view() function
+def format_tree_view(tree_view:Tree=None) -> str:
+    """Format a Tree object for console output."""
+    try:
+        if not isinstance(tree_view, Tree):
+            raise TypeError("Invalid tree_view parameter: Expected a Tree object.")
+        # Format the tree for console output
+        original_stdout = sys.stdout  # Save the original stdout
+        buffer = io.StringIO()
+        sys.stdout = buffer  # Redirect stdout to capture tree output
+        tree_view.show()
+        sys.stdout = original_stdout  # Reset stdout
+        return buffer.getvalue()
+    except Exception as e:
+        m = exc_err_msg(e)
+        return m
+#endregion format_tree_view() function
+# ---------------------------------------------------------------------------- +
 #endregion Public functions
 # ---------------------------------------------------------------------------- +
