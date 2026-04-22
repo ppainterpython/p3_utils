@@ -146,13 +146,13 @@ def gen_hash_key(text: str, length:int=12) -> str:
     return sha256.hexdigest()[:length]
 #endregion gen_hash_key(text: str, length:int=12) -> str
 # ---------------------------------------------------------------------------- +
-#region gen_unique_hex_id()
-def gen_unique_hex_id() -> str:
+#region gen_hex_id()
+def gen_hex_id() -> str:
     """Generate a unique hexadecimal identifier based on random data."""
     # Generate 16 random bytes
     hex_string = uuid.uuid4().hex[:8]
     return hex_string
-#endregion gen_unique_hex_id() -> str
+#endregion gen_hex_id() -> str
 # ---------------------------------------------------------------------------- +
 #region impor_modeule_from_path()
 def import_module_from_path(module_name: str, module_path: Path) -> types.ModuleType:

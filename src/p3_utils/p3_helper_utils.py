@@ -14,7 +14,7 @@ from pathlib import Path, PurePath
 from typing import List, Any, Optional, Type
 
 # third-party modules and packages
-from .p3_print_output_utils import exc_err_msg
+from .p3_print_output_utils import exc_err_msg, first_n
 from openpyxl import Workbook
 
 # local modules and packages
@@ -361,7 +361,9 @@ def is_obj_of_type(name:str, obj_value: Any, exp_obj_type : Type[Any],
     # Check if the class name provided in 'type' matches the value's type
     if not isinstance(obj_value, exp_obj_type):
         if raise_error:
-            raise TypeError(f"'{name}'parameter value:'{obj_value}' " + \
+            obj_value_str = str(obj_value) if obj_value is not None else "None"
+            obj_value_str = first_n(obj_value_str)
+            raise TypeError(f"'{name}'parameter value:'{obj_value_str}' " + \
                             f"must be of type:'{exp_obj_type}', " + \
                             f"not type:'{type(obj_value).__name__}'")
         else:

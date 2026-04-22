@@ -41,6 +41,15 @@ def test_is_filename_only():
         f"Expected TypeError but got {str(excinfo.value)}"
 #endregion test_is_filename_only() function
 # ---------------------------------------------------------------------------- +
+#region test_gen_unique_hex_id() function
+def test_gen_unique_hex_id():
+    # Test with default length
+    result = p3u.gen_hex_id()
+    assert isinstance(result, str), f"Expected str but got {type(result)}"
+    assert len(result) == 8, f"Expected length 8 but got {len(result)}"
+
+#endregion test_gen_unique_hex_id() function
+# ---------------------------------------------------------------------------- +
 #endregion Tests for is_filename_only() function
 # ---------------------------------------------------------------------------- +
 #region Tests for fpfx() function

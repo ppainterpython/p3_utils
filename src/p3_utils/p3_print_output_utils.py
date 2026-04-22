@@ -130,7 +130,10 @@ def exc_err_msg(e : Exception) -> str:
         filepath, line_number, function_name, text = tb[-1]
         filename = Path(filepath).name
         et = type(e).__name__
-        m = f"{et}({str(e)}) at {function_name}() in {filename}:{line_number}"
+        e_str : str = str(e)
+        if len(e_str) > 100:
+            e_str = first_n(e_str, n=200)
+        m = f"{et}({e_str}) at {function_name}() in {filename}:{line_number}"
         po(m)
         return m
     except Exception as e:

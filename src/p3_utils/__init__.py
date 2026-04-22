@@ -49,7 +49,7 @@ from .p3_common_utils import (
     has_property,
     check_testcase,
     gen_hash_key,
-    gen_unique_hex_id,
+    gen_hex_id,
     import_module_from_path
 )
 from .p3_excel_utils import (
@@ -168,7 +168,7 @@ __all__ = [
     "has_property",
     "check_testcase",
     "gen_hash_key",
-    "gen_unique_hex_id",
+    "gen_hex_id",
     "import_module_from_path",
     # p3_excel_utils
     "WI_NAME",
