@@ -8,10 +8,10 @@ Helper functions for ISO 8601 timestamps and other common validation tests.
 #region Imports
 # ---------------------------------------------------------------------------- +
 # python standard library modules and packages
-import datetime,threading, os, inspect, sys, debugpy, time, logging
+import datetime,threading, os, inspect, sys, debugpy, typing, logging
 from urllib.parse import urlparse, unquote, quote
 from pathlib import Path, PurePath
-from typing import List, Any, Optional, Type
+from typing import List, Any, Optional, Type, TypeAliasType
 
 # third-party modules and packages
 from .p3_print_output_utils import exc_err_msg, first_n
@@ -340,35 +340,55 @@ def is_not_object_or_none(value: object = None) -> bool:
     """p3_utils: Negative test for None or type:object."""
     return not is_object_or_none(value)
 
-def is_obj_of_type(name:str, obj_value: Any, exp_obj_type : Type[Any], 
+def is_obj_of_type(name:str, obj_value: Any, exp_obj_type: Any,
                    raise_error:bool=False) -> bool:
-    """p3_utils: Positive test for object of type: type, return True, or raise TypeError."""
+    """p3_utils: Positive test for object of a runtime-checkable type or type alias."""
     # name parameter is the name of the parameter being validated.
-    # Ensure name is a string, converting None to default string
-    if name is None or isinstance(name,str) and len(name) == 0: 
-        name = "default_name" 
-    if not isinstance(name, str): 
+    if name is None or (isinstance(name, str) and len(name) == 0):
+        name = "default_name"
+    if not isinstance(name, str):
         if raise_error:
-            raise TypeError(f"name parameter must be type:'str', " + \
+            raise TypeError(f"name parameter must be type:'str', "
                             f"not type:'{type(name).__name__}'")
-        else: return False
-    # Ensure obj_type is a type object
-    if exp_obj_type is None or not isinstance(exp_obj_type, type):
+        return False
+
+    if exp_obj_type is None:
         if raise_error:
-            raise TypeError(f"obj_type parameter must be a type, " + \
-                            f"not type:'{type(name).__name__}'")
-        else: return False
-    # Check if the class name provided in 'type' matches the value's type
-    if not isinstance(obj_value, exp_obj_type):
+            raise TypeError("obj_type parameter must be a type or TypeAlias, "
+                            f"not type:'{type(exp_obj_type).__name__}'")
+        return False
+
+    runtime_type = exp_obj_type
+    # PEP 695 alias support (e.g. MyAlias = str | None).
+    if isinstance(exp_obj_type, TypeAliasType):
+        runtime_type = exp_obj_type.__value__
+
+    # Resolve typing aliases to a runtime-checkable target for isinstance().
+    origin = typing.get_origin(runtime_type)
+    if origin is typing.Union:
+        union_types = tuple(t for t in typing.get_args(runtime_type) if isinstance(t, type))
+        runtime_type = union_types if len(union_types) > 0 else runtime_type
+    elif isinstance(origin, type):
+        # Examples: list[str] -> list, dict[str, int] -> dict
+        runtime_type = origin
+
+    try:
+        is_match = isinstance(obj_value, runtime_type)
+    except TypeError:
+        if raise_error:
+            raise TypeError("obj_type parameter must resolve to a runtime-checkable "
+                            "type, union, or TypeAlias")
+        return False
+
+    if not is_match:
         if raise_error:
             obj_value_str = str(obj_value) if obj_value is not None else "None"
             obj_value_str = first_n(obj_value_str)
-            raise TypeError(f"'{name}'parameter value:'{obj_value_str}' " + \
-                            f"must be of type:'{exp_obj_type}', " + \
+            raise TypeError(f"'{name}' parameter value:'{obj_value_str}' "
+                            f"must be of type:'{runtime_type}', "
                             f"not type:'{type(obj_value).__name__}'")
-        else:
-            return False
-    # If all checks pass, return True
+        return False
+
     return True
 
 def is_not_obj_of_type(name:str, object_value: object, 

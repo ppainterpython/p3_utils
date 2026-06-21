@@ -97,5 +97,6 @@
             "envManager": "ms-python.python:venv",
             "packageManager": "ms-python.python:pip"
         }
-    ]
+    ],
+    "python.defaultInterpreterPath": "C:\\\\users\\\\ppain\\\\venvs\\\\p3\\\\Scripts\\\\python.exe"
 }
